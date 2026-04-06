@@ -5,11 +5,12 @@ import React from 'react';
 const StepCard = ({ step, title, desc, SVGContent }: { step: string, title: string, desc: string, SVGContent: React.ReactNode }) => {
   const glyphStyles = `
     @keyframes glyphPulse {
-      0%, 100% { opacity: 0.15; }
+      0%, 100% { opacity: 0.3; }
       20%, 60% { opacity: 1; }
     }
     .glyph-card .glyph-line {
-      opacity: 0.15;
+      opacity: 1;
+      transition: opacity 0.3s ease;
     }
     .glyph-card:hover .glyph-line {
       animation: glyphPulse 2s ease-in-out infinite;
@@ -29,25 +30,34 @@ const StepCard = ({ step, title, desc, SVGContent }: { step: string, title: stri
 
     .glyph-card .glyph-grid {
       opacity: 0.85;
-      transition: opacity 0.4s ease;
+      transition: 0.4s ease;
     }
-    .glyph-card:hover .glyph-grid {
-      opacity: 0.4;
-    }
+    
   `;
 
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: glyphStyles }} />
-      <div className="glyph-card group bg-[#e4e3dc] text-[#1a1a1a] w-full h-[410px] rounded-[1.5rem] pt-10 pb-8 px-5 lg:px-6 flex flex-col items-center text-center shadow-xl relative overflow-hidden cursor-pointer">
+      <div className="glyph-card group text-[#1a1a1a] w-full h-[410px] pt-10 pb-8 px-5 lg:px-6 flex flex-col items-center text-center shadow-xl relative cursor-pointer z-0">
+        <svg
+          viewBox="0 0 350 550"
+          preserveAspectRatio="none"
+          className="absolute inset-0 w-full h-full -z-10"
+        >
+          <path
+            d="M0 26.25C0 4.63 4.63 0 26.25 0H323.75C345.37 0 350 4.63 350 26.25V523.75C350 545.37 345.37 550 323.75 550H26.25C4.63 550 0 545.37 0 523.75V26.25Z"
+            fill="#DEDBD4"
+          />
+        </svg>
+
         <span className="text-[26px] font-bold mb-1 tracking-tight">{step}</span>
         <h3 className="text-[22px] font-bold tracking-tight mb-3">{title}</h3>
         <p className="text-[14px] text-gray-700 font-semibold leading-snug px-1 max-w-[220px]">{desc}</p>
         
-        <div className="mt-auto w-[85%] max-w-[210px] aspect-square relative transition-transform duration-500">
+        <div className="mt-auto w-[90%] max-w-[210px] aspect-square relative transition-transform duration-500">
           <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" className="absolute bottom-0 left-0">
             {/* Background Grid */}
-            <g className="glyph-grid" stroke="#ffffff" strokeWidth="3.5" strokeDasharray="14 6" strokeLinecap="butt">
+            <g className="glyph-grid" stroke="#E9E8E4" strokeWidth="2.5" strokeDasharray="14 6" strokeLinecap="butt">
               <line x1="13" y1="10" x2="87" y2="10" />
               <line x1="13" y1="30" x2="87" y2="30" />
               <line x1="13" y1="50" x2="87" y2="50" />

@@ -21,15 +21,15 @@ const Hero = () => {
         
         {/* Left Section - Typography */}
         <div className="w-full lg:w-1/2 flex flex-col items-center gap-6 z-20 mt-10 lg:mt-0 relative">
-          <h1 className="text-4xl sm:text-5xl lg:text-[46px] leading-[1.1] font-semibold tracking-wide text-center text-white">
+          <h1 className="text-3xl sm:text-5xl lg:text-[40px] leading-[1.1] font-semibold tracking-wide text-center text-white">
             Stop Collecting Certificates.<br />
             Start Shipping Products
           </h1>
-          <p className="text-[17px] text-gray-300 max-w-[480px] text-center font-light leading-relaxed">
+          <p className="text-[17px] text-white/70 max-w-[480px] text-center font-light leading-relaxed">
             Onboard to a simulated engineering floor and build the real-world portfolio that actually gets you hired.
           </p>
           <div className="flex flex-row gap-5 mt-4">
-            <button className="bg-[#ff1a1a] hover:bg-[#ff3333] transition-colors text-white rounded-full px-10 py-3.5 text-[15px] font-medium shadow-[0_0_25px_rgba(255,26,26,0.6)]">
+            <button className="bg-[#ff1a1a] hover:bg-[#ff3333] transition-colors text-white rounded-full px-10 py-3.5 text-[15px] font-medium ">
               Get Started
             </button>
             <button className="border border-white hover:bg-white/10 transition-colors text-white rounded-full px-10 py-3.5 text-[15px] font-medium">
