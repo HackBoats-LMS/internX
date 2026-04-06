@@ -25,8 +25,8 @@ const outerAvatars: AvatarData[] = [
   { startAngle: 300, name1: "Q&A", name2: "TESTER", image: "/avatar_6_1775365482321.png", badgeColor: "#F44336", popDelay: 700, note: "Running automated test suites against these simulated branches catches regressions before they ship." },
 ];
 
-const INNER_RADIUS = 140;
-const OUTER_RADIUS = 220;
+const INNER_RADIUS = 120;
+const OUTER_RADIUS = 200;
 
 const orbitStyles = `
   @keyframes spinCW {
@@ -43,19 +43,19 @@ const orbitStyles = `
     100% { opacity: 1; transform: scale(1) translateY(0); }
   }
   .orbit-cw {
-    animation: spinCW 60s linear infinite;
+    animation: spinCW 90s linear infinite;
     will-change: transform;
   }
   .orbit-ccw {
-    animation: spinCCW 75s linear infinite;
+    animation: spinCCW 110s linear infinite;
     will-change: transform;
   }
   .counter-cw {
-    animation: spinCCW 60s linear infinite;
+    animation: spinCCW 90s linear infinite;
     will-change: transform;
   }
   .counter-ccw {
-    animation: spinCW 75s linear infinite;
+    animation: spinCW 110s linear infinite;
     will-change: transform;
   }
   .animate-thought-bubble {
@@ -109,12 +109,12 @@ const OrbitSystem = () => {
 
       {/* Decorative orbit ring visuals */}
       <div className="absolute w-full h-full">
-        <div className="absolute rounded-full border border-white/35 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: 140, height: 140 }} />
-        <div className="absolute rounded-full border border-white/40 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: 210, height: 210 }} />
-        <div className="absolute rounded-full border border-white/45 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: INNER_RADIUS * 2, height: INNER_RADIUS * 2 }} />
-        <div className="absolute rounded-full border border-white/40 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: 350, height: 350 }} />
-        <div className="absolute rounded-full border border-white/45 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: OUTER_RADIUS * 2, height: OUTER_RADIUS * 2 }} />
-        <div className="absolute rounded-full border border-white/35 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: 520, height: 520 }} />
+       
+        <div className="absolute rounded-full border-[2.5px] border-white/60 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: 160, height: 160 }} />
+        <div className="absolute rounded-full border-[2.5px] border-white/60 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: INNER_RADIUS * 2, height: INNER_RADIUS * 2 }} />
+        <div className="absolute rounded-full border-[2.5px] border-white/60 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: 320, height: 320 }} />
+        <div className="absolute rounded-full border-[2.5px] border-white/60 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: OUTER_RADIUS * 2, height: OUTER_RADIUS * 2 }} />
+        
       </div>
 
       {/* Inner orbit group — clockwise */}
