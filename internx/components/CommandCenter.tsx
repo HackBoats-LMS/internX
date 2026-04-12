@@ -76,7 +76,7 @@ const CommandCenter = () => {
       <div className="w-full max-w-[1240px] border border-gray-800 rounded-[2.5rem] bg-[#111111] overflow-hidden flex flex-col lg:flex-row relative shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
         
         {/* Left side text/stats */}
-        <div className="w-full lg:w-1/2 p-14 lg:p-20 flex flex-col justify-center relative z-10">
+        <div className="w-full lg:w-1/2 p-8 sm:p-12 lg:p-20 flex flex-col justify-center relative z-10">
           
           <h2 className="text-3xl lg:text-[40px] leading-tight font-semibold mb-6">
             Your Engineering<br/>Command Center
@@ -85,7 +85,7 @@ const CommandCenter = () => {
             Stop wondering if you're job-ready...<br/>Prove it in a production simulation.
           </p>
 
-          <div className="flex gap-8 lg:gap-14 relative z-10">
+          <div className="flex gap-6 sm:gap-8 lg:gap-14 relative z-10">
             <div className="flex flex-col items-center text-center gap-3">
               <div className="w-16 h-16 rounded-full border-2 border-gray-600 flex items-center justify-center transition-colors duration-500 group-hover:border-gray-400 group-hover:bg-gray-800/50">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-200 group-hover:text-white transition-colors"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
@@ -116,8 +116,8 @@ const CommandCenter = () => {
           </div>
         </div>
 
-        {/* Right side Dashboard Mockups (Isometric) */}
-        <div className="w-full lg:w-1/2 min-h-[400px] lg:min-h-full relative overflow-hidden bg-gradient-to-br from-[#181818] to-[#0a0a0a]">
+        {/* Right side Dashboard Mockups — hidden on mobile */}
+        <div className="hidden sm:block w-full lg:w-1/2 min-h-[400px] lg:min-h-full relative overflow-hidden bg-gradient-to-br from-[#181818] to-[#0a0a0a]">
           {/* Decorative background glow for the UI */}
           <div className="absolute top-[20%] left-[30%] w-[400px] h-[400px] bg-red-900/10 blur-[100px] rounded-full pointer-events-none" />
           

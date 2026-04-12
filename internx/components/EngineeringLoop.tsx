@@ -3,12 +3,12 @@ import StepCard from './StepCard';
 
 const EngineeringLoop = () => {
   return (
-    <section className="w-full flex justify-center pt-20 pb-32 relative z-10">
+    <section className="w-full flex justify-center pt-16 pb-20 lg:pt-20 lg:pb-32 relative z-10">
       <div className="max-w-[1300px] w-full px-6 flex flex-col items-center">
-        <h2 className="text-3xl lg:text-[34px] font-semibold tracking-wide text-center text-[#f8f8f8] mb-4">
+        <h2 className="text-2xl lg:text-[34px] font-semibold tracking-wide text-center text-[#f8f8f8] mb-3 lg:mb-4">
           From Classroom to Command Center
         </h2>
-        <p className="text-[17px] text-gray-400 text-center font-light mb-16 max-w-2xl">
+        <p className="text-[14px] lg:text-[17px] text-gray-400 text-center font-light mb-10 lg:mb-16 max-w-2xl">
           The 4-step engineering loop that turns students into teammates.
         </p>
 

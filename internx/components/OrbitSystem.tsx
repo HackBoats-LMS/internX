@@ -27,6 +27,8 @@ const outerAvatars: AvatarData[] = [
 
 const INNER_RADIUS = 120;
 const OUTER_RADIUS = 200;
+const INNER_RADIUS_SM = 80;
+const OUTER_RADIUS_SM = 135;
 
 const orbitStyles = `
   @keyframes spinCW {
@@ -83,6 +85,17 @@ const TypewriterText = ({ text }: { text: string }) => {
 const OrbitSystem = () => {
   const [popped, setPopped] = useState<Set<number>>(new Set());
   const [activeAvatarName, setActiveAvatarName] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  const innerR = isMobile ? INNER_RADIUS_SM : INNER_RADIUS;
+  const outerR = isMobile ? OUTER_RADIUS_SM : OUTER_RADIUS;
 
   useEffect(() => {
     const all = [...innerAvatars, ...outerAvatars];
@@ -104,16 +117,16 @@ const OrbitSystem = () => {
   };
 
   return (
-    <div className="relative w-full max-w-[500px] aspect-square flex justify-center items-center" onClick={closeBubble}>
+    <div className="relative w-[300px] sm:w-full sm:max-w-[500px] aspect-square flex justify-center items-center" onClick={closeBubble}>
       <style dangerouslySetInnerHTML={{ __html: orbitStyles }} />
 
       {/* Decorative orbit ring visuals */}
       <div className="absolute w-full h-full">
        
-        <div className="absolute rounded-full border-[2.5px] border-white/60 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: 160, height: 160 }} />
-        <div className="absolute rounded-full border-[2.5px] border-white/60 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: INNER_RADIUS * 2, height: INNER_RADIUS * 2 }} />
-        <div className="absolute rounded-full border-[2.5px] border-white/60 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: 320, height: 320 }} />
-        <div className="absolute rounded-full border-[2.5px] border-white/60 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: OUTER_RADIUS * 2, height: OUTER_RADIUS * 2 }} />
+        <div className="absolute rounded-full border-[2.5px] border-white/60 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: isMobile ? 108 : 160, height: isMobile ? 108 : 160 }} />
+        <div className="absolute rounded-full border-[2.5px] border-white/60 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: innerR * 2, height: innerR * 2 }} />
+        <div className="absolute rounded-full border-[2.5px] border-white/60 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: isMobile ? 214 : 320, height: isMobile ? 214 : 320 }} />
+        <div className="absolute rounded-full border-[2.5px] border-white/60 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: outerR * 2, height: outerR * 2 }} />
         
       </div>
 
@@ -121,8 +134,8 @@ const OrbitSystem = () => {
       <div className={`absolute w-0 h-0 orbit-cw ${innerAvatars.some(a => a.name1 === activeAvatarName) ? 'z-[100]' : 'z-10'}`} style={{ animationPlayState: activeAvatarName ? 'paused' : 'running' }}>
         {innerAvatars.map((av, i) => {
           const rad = (av.startAngle * Math.PI) / 180;
-          const x = (Math.cos(rad) * INNER_RADIUS).toFixed(2) + "px";
-          const y = (Math.sin(rad) * INNER_RADIUS).toFixed(2) + "px";
+          const x = (Math.cos(rad) * innerR).toFixed(2) + "px";
+          const y = (Math.sin(rad) * innerR).toFixed(2) + "px";
           const isActive = activeAvatarName === av.name1;
           
           return (
@@ -131,16 +144,14 @@ const OrbitSystem = () => {
                 
                 {/* Thought Bubble linked to this Avatar */}
                 {isActive && (
-                  <div className="absolute bottom-[110%] mb-4 animate-thought-bubble w-[240px]" onClick={(e) => e.stopPropagation()}>
-                    {/* The thinking dots leading to the avatar */}
+                  <div className="absolute bottom-[110%] mb-4 animate-thought-bubble w-[160px] sm:w-[240px]" onClick={(e) => e.stopPropagation()}>
                     <div className="absolute -bottom-3 left-[50%] w-3 h-3 rounded-full bg-[#151515] border border-[#333] shadow-lg" />
                     <div className="absolute -bottom-7 left-[45%] w-1.5 h-1.5 rounded-full bg-[#151515] border border-[#333] shadow-lg" />
-                    
-                    <div className="bg-[#151515] border border-[#333] rounded-[18px] p-4 shadow-[0_20px_40px_rgba(0,0,0,0.9)] relative">
+                    <div className="bg-[#151515] border border-[#333] rounded-[18px] p-3 sm:p-4 shadow-[0_20px_40px_rgba(0,0,0,0.9)] relative">
                       <button onClick={closeBubble} className="absolute top-2.5 right-3 text-gray-500 hover:text-white transition-colors">
                         <svg width="10" height="10" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="13" y1="1" x2="1" y2="13"></line><line x1="1" y1="1" x2="13" y2="13"></line></svg>
                       </button>
-                      <div className="text-gray-300 text-[12px] leading-relaxed font-mono flex items-start mt-1">
+                      <div className="text-gray-300 text-[10px] sm:text-[12px] leading-relaxed font-mono flex items-start mt-1">
                         <span className="text-gray-500 mr-2">{'>'}</span>
                         <div>
                           <TypewriterText text={av.note} />
@@ -169,8 +180,8 @@ const OrbitSystem = () => {
         {outerAvatars.map((av, i) => {
           const idx = i + innerAvatars.length;
           const rad = (av.startAngle * Math.PI) / 180;
-          const x = (Math.cos(rad) * OUTER_RADIUS).toFixed(2) + "px";
-          const y = (Math.sin(rad) * OUTER_RADIUS).toFixed(2) + "px";
+          const x = (Math.cos(rad) * outerR).toFixed(2) + "px";
+          const y = (Math.sin(rad) * outerR).toFixed(2) + "px";
           const isActive = activeAvatarName === av.name1;
 
           return (
@@ -179,16 +190,14 @@ const OrbitSystem = () => {
                 
                 {/* Thought Bubble linked to this Avatar */}
                 {isActive && (
-                  <div className="absolute bottom-[110%] mb-4 animate-thought-bubble w-[240px]" onClick={(e) => e.stopPropagation()}>
-                    {/* The thinking dots leading to the avatar */}
+                  <div className="absolute bottom-[110%] mb-4 animate-thought-bubble w-[160px] sm:w-[240px]" onClick={(e) => e.stopPropagation()}>
                     <div className="absolute -bottom-3 left-[50%] w-3 h-3 rounded-full bg-[#151515] border border-[#333] shadow-lg" />
                     <div className="absolute -bottom-7 left-[45%] w-1.5 h-1.5 rounded-full bg-[#151515] border border-[#333] shadow-lg" />
-                    
-                    <div className="bg-[#151515] border border-[#333] rounded-[18px] p-4 shadow-[0_20px_40px_rgba(0,0,0,0.9)] relative">
+                    <div className="bg-[#151515] border border-[#333] rounded-[18px] p-3 sm:p-4 shadow-[0_20px_40px_rgba(0,0,0,0.9)] relative">
                       <button onClick={closeBubble} className="absolute top-2.5 right-3 text-gray-500 hover:text-white transition-colors">
                         <svg width="10" height="10" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="13" y1="1" x2="1" y2="13"></line><line x1="1" y1="1" x2="13" y2="13"></line></svg>
                       </button>
-                      <div className="text-gray-300 text-[12px] leading-relaxed font-mono flex items-start mt-1">
+                      <div className="text-gray-300 text-[10px] sm:text-[12px] leading-relaxed font-mono flex items-start mt-1">
                         <span className="text-gray-500 mr-2">{'>'}</span>
                         <div>
                           <TypewriterText text={av.note} />

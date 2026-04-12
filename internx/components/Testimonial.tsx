@@ -3,11 +3,11 @@ import Image from 'next/image';
 
 const Testimonial = () => {
   return (
-    <section className="w-full flex justify-center py-20 relative z-10">
+    <section className="w-full flex justify-center py-14 sm:py-20 relative z-10">
       <div className="max-w-3xl flex flex-col items-center text-center px-6">
-        <h2 className="text-[32px] font-semibold text-white mb-12">Listern to our students</h2>
+        <h2 className="text-[26px] sm:text-[32px] font-semibold text-white mb-10 sm:mb-12">Listen to our students</h2>
         
-        <div className="flex items-center gap-10">
+        <div className="flex items-center gap-6 sm:gap-10">
           {/* Left Chevron */}
           <button className="text-gray-400 hover:text-white transition-colors">
             <svg width="24" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
