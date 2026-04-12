@@ -27,36 +27,26 @@ const StepCard = ({ step, title, desc, SVGContent }: { step: string, title: stri
     .glyph-card:hover .glyph-line:nth-child(10) { animation-delay: 0.9s; }
     .glyph-card:hover .glyph-line:nth-child(11) { animation-delay: 1.0s; }
     .glyph-card:hover .glyph-line:nth-child(12) { animation-delay: 1.1s; }
-
     .glyph-card .glyph-grid {
       opacity: 0.85;
       transition: 0.4s ease;
     }
-    
   `;
 
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: glyphStyles }} />
-      <div className="glyph-card group text-[#1a1a1a] w-full h-[410px] pt-10 pb-8 px-5 lg:px-6 flex flex-col items-center text-center shadow-xl relative cursor-pointer z-0">
-        <svg
-          viewBox="0 0 350 550"
-          preserveAspectRatio="none"
-          className="absolute inset-0 w-full h-full -z-10"
-        >
-          <path
-            d="M0 26.25C0 4.63 4.63 0 26.25 0H323.75C345.37 0 350 4.63 350 26.25V523.75C350 545.37 345.37 550 323.75 550H26.25C4.63 550 0 545.37 0 523.75V26.25Z"
-            fill="#DEDBD4"
-          />
+      <div className="glyph-card group text-[#1a1a1a] w-full pt-8 pb-6 px-[5%] flex flex-col items-center text-center shadow-xl relative cursor-pointer z-0" style={{ minHeight: 'clamp(280px, 40vw, 410px)' }}>
+        <svg viewBox="0 0 350 550" preserveAspectRatio="none" className="absolute inset-0 w-full h-full -z-10">
+          <path d="M0 26.25C0 4.63 4.63 0 26.25 0H323.75C345.37 0 350 4.63 350 26.25V523.75C350 545.37 345.37 550 323.75 550H26.25C4.63 550 0 545.37 0 523.75V26.25Z" fill="#DEDBD4" />
         </svg>
 
-        <span className="text-[26px] font-bold mb-1 tracking-tight">{step}</span>
-        <h3 className="text-[22px] font-bold tracking-tight mb-3">{title}</h3>
-        <p className="text-[14px] text-gray-700 font-semibold leading-snug px-1 max-w-[220px]">{desc}</p>
-        
-        <div className="mt-auto w-[90%] max-w-[210px] aspect-square relative transition-transform duration-500">
+        <span className="font-bold mb-1 tracking-tight" style={{ fontSize: 'clamp(1.2rem, 3vw, 1.6rem)' }}>{step}</span>
+        <h3 className="font-bold tracking-tight mb-2" style={{ fontSize: 'clamp(1.1rem, 3vw, 1.4rem)' }}>{title}</h3>
+        <p className="text-gray-700 font-semibold leading-snug px-1 max-w-[220px]" style={{ fontSize: 'clamp(0.78rem, 2vw, 0.875rem)' }}>{desc}</p>
+
+        <div className="mt-auto w-[85%] max-w-[200px] aspect-square relative transition-transform duration-500">
           <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" className="absolute bottom-0 left-0">
-            {/* Background Grid */}
             <g className="glyph-grid" stroke="#E9E8E4" strokeWidth="2.5" strokeDasharray="14 6" strokeLinecap="butt">
               <line x1="13" y1="10" x2="87" y2="10" />
               <line x1="13" y1="30" x2="87" y2="30" />
