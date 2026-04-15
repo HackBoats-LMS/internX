@@ -36,14 +36,14 @@ const StepCard = ({ step, title, desc, SVGContent }: { step: string, title: stri
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: glyphStyles }} />
-      <div className="glyph-card group text-[#1a1a1a] w-full pt-8 pb-6 px-[5%] flex flex-col items-center text-center shadow-xl relative cursor-pointer z-0" style={{ minHeight: 'clamp(280px, 40vw, 410px)' }}>
+      <div className="glyph-card group text-[#1a1a1a] w-full max-w-[320px] mx-auto pt-8 pb-8 px-[5%] flex flex-col items-center text-center shadow-xl relative cursor-pointer z-0" style={{ minHeight: 'clamp(240px, 35vw, 350px)' }}>
         <svg viewBox="0 0 350 550" preserveAspectRatio="none" className="absolute inset-0 w-full h-full -z-10">
           <path d="M0 26.25C0 4.63 4.63 0 26.25 0H323.75C345.37 0 350 4.63 350 26.25V523.75C350 545.37 345.37 550 323.75 550H26.25C4.63 550 0 545.37 0 523.75V26.25Z" fill="#DEDBD4" />
         </svg>
 
         <span className="font-bold mb-1 tracking-tight" style={{ fontSize: 'clamp(1.2rem, 3vw, 1.6rem)' }}>{step}</span>
         <h3 className="font-bold tracking-tight mb-2" style={{ fontSize: 'clamp(1.1rem, 3vw, 1.4rem)' }}>{title}</h3>
-        <p className="text-gray-700 font-semibold leading-snug px-1 max-w-[220px]" style={{ fontSize: 'clamp(0.78rem, 2vw, 0.875rem)' }}>{desc}</p>
+        <p className="text-[#101828] font-semibold leading-snug px-1 max-w-[220px]" style={{ fontSize: 'clamp(0.78rem, 2vw, 0.875rem)' }}>{desc}</p>
 
         <div className="mt-auto w-[85%] max-w-[200px] aspect-square relative transition-transform duration-500">
           <svg width="100%" height="100%" viewBox="0 0 100 100" fill="none" className="absolute bottom-0 left-0">

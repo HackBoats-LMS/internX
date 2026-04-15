@@ -17,7 +17,7 @@ const Hero = () => {
       <main className="flex-1 w-full max-w-[1500px] mx-auto px-[5vw] lg:px-16 flex flex-col lg:flex-row items-center justify-center lg:justify-between py-10 lg:py-0 relative z-10 lg:pt-0">
 
         {/* Left Section - Typography */}
-        <div className="w-full lg:w-1/2 flex flex-col items-center gap-[clamp(0.75rem,2vw,1.5rem)] z-20 mt-4 lg:mt-0 relative">
+        <div className="w-full lg:w-1/2 flex flex-col items-center gap-3 lg:gap-4 z-20 py-12 lg:py-0 relative">
           <h1
             className="font-semibold tracking-wide text-center text-white w-full leading-[1.15]"
             style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)' }}
@@ -26,20 +26,20 @@ const Hero = () => {
             Start Shipping Products
           </h1>
           <p
-            className="text-white/70 text-center font-light leading-relaxed max-w-[480px]"
+            className="text-white/70 text-center font-light leading-relaxed max-w-[480px] mt-0"
             style={{ fontSize: 'clamp(0.85rem, 2.5vw, 1.05rem)' }}
           >
             Onboard to a simulated engineering floor and build the real-world portfolio that actually gets you hired.
           </p>
-          <div className="flex flex-row gap-[clamp(0.6rem,2vw,1.25rem)] mt-1 lg:mt-4">
+          <div className="flex flex-row gap-4 mt-3 lg:mt-3">
             <button
-              className="bg-[#ff1a1a] hover:bg-[#ff3333] transition-colors text-white rounded-full font-medium"
+              className="bg-[#ff1a1a] hover:bg-[#ff3333] transition-colors text-white rounded-full font-medium hover:cursor-pointer"
               style={{ fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)', padding: 'clamp(0.55rem, 1.5vw, 0.875rem) clamp(1.5rem, 4vw, 2.5rem)' }}
             >
               Get Started
             </button>
             <button
-              className="border border-white hover:bg-white/10 transition-colors text-white rounded-full font-medium"
+              className="border border-white hover:bg-[rgba(255,255,255,0.1)] transition-colors text-white rounded-full font-medium hover:cursor-pointer"
               style={{ fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)', padding: 'clamp(0.55rem, 1.5vw, 0.875rem) clamp(1.5rem, 4vw, 2.5rem)' }}
             >
               Explore

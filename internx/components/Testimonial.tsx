@@ -31,7 +31,7 @@ const Testimonial = () => {
         </p>
 
         <button
-          className="mt-10 lg:mt-12 bg-[#ff1a1a] hover:bg-[#ff3333] transition-colors text-white rounded-full font-medium shadow-[0_0_25px_rgba(255,26,26,0.5)]"
+          className="mt-10 lg:mt-12 bg-[#ff1a1a] hover:bg-[#ff3333] transition-colors text-white rounded-full font-medium shadow-[0_0_25px_rgba(255,26,26,0.5)] hover:cursor-pointer"
           style={{ fontSize: 'clamp(0.85rem, 2.5vw, 1rem)', padding: 'clamp(0.6rem,2vw,0.875rem) clamp(2rem,6vw,3rem)' }}
         >
           Get Started
