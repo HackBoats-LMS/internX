@@ -44,16 +44,18 @@ export async function POST(req: Request) {
     if (event.type === 'payment.failed') {
       const userId = event.data.userId;
       if (userId) {
-        await supabaseAdmin.auth.admin.updateUserById(
-          userId,
-          { user_metadata: { payment_status: 'unpaid' } }
-        );
+        await supabaseAdmin
+          .from('users')
+          .update({ payment_status: 'unpaid' })
+          .eq('id', userId);
       }
       return NextResponse.json({ received: true, status: 'Payment failure handled' });
     }
 
     return NextResponse.json({ received: true, message: 'Event ignored' });
-  } catch (error: any) {
-    return NextResponse.json({ error: 'Webhook Handler Failed', details: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ error: 'Webhook Handler Failed', details: message }, { status: 500 });
   }
 }
+
