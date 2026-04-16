@@ -1,23 +1,23 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - static assets (.svg, .png, etc.)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  // Use a simple wildcard to avoid complex regex failures in Edge Runtime
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 }
 
 export async function middleware(request: NextRequest) {
   try {
     const { pathname } = request.nextUrl
     
-    // Simple check: Is a session cookie present?
+    // Ignore static assets manually to be safe
+    if (
+      pathname.includes('.') || 
+      pathname.startsWith('/_next') || 
+      pathname.startsWith('/api')
+    ) {
+      return NextResponse.next()
+    }
+
     const hasToken = request.cookies.has('auth_token')
 
     const isPublicRoute = [
@@ -28,16 +28,12 @@ export async function middleware(request: NextRequest) {
       '/forgot-password',
       '/favicon.ico'
     ].includes(pathname) || 
-    pathname.startsWith('/api') || 
-    pathname.startsWith('/_next') || 
     pathname.startsWith('/auth/callback')
 
-    // Redirect unauthenticated users
     if (!hasToken && !isPublicRoute) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
 
-    // Redirect authenticated users away from auth pages
     if (hasToken && (pathname === '/login' || pathname === '/signup')) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
