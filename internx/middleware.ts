@@ -9,7 +9,6 @@ export async function middleware(request: NextRequest) {
   try {
     const { pathname } = request.nextUrl
     
-    // Ignore static assets manually to be safe
     if (
       pathname.includes('.') || 
       pathname.startsWith('/_next') || 
