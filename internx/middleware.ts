@@ -1,46 +1,42 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'default_secret_key_1234567890_change_me'
-)
-
 const COOKIE_NAME = 'auth_token'
 
 export async function middleware(request: NextRequest) {
+  const { pathname, origin } = request.nextUrl
   let user = null
 
-  // Verify custom JWT token from cookie
+  // 1. Verify custom JWT token from cookie
   const token = request.cookies.get(COOKIE_NAME)?.value
 
   if (token) {
     try {
-      const { payload } = await jwtVerify(token, JWT_SECRET)
+      const secret = new TextEncoder().encode(
+        process.env.JWT_SECRET || 'default_secret_key_1234567890_change_me'
+      )
+      const { payload } = await jwtVerify(token, secret)
       user = payload
     } catch (e) {
-      // Token invalid or expired
+      // Token invalid or expired - we ignore and let the check below handle it
     }
   }
 
-  const path = request.nextUrl.pathname
-  const isPublicRoute = ['/', '/login', '/signup', '/payment'].includes(path) || 
-                       path.startsWith('/api') || 
-                       path.startsWith('/_next') || 
-                       path.startsWith('/favicon.ico') ||
-                       path.startsWith('/forgot-password') ||
-                       path.startsWith('/auth/callback')
+  // 2. Define routes
+  const isPublicRoute = ['/', '/login', '/signup', '/payment'].includes(pathname) || 
+                       pathname.startsWith('/api') || 
+                       pathname.startsWith('/_next') || 
+                       pathname.startsWith('/favicon.ico') ||
+                       pathname.startsWith('/forgot-password') ||
+                       pathname.startsWith('/auth/callback')
 
+  // 3. Redirect logic
   if (!user && !isPublicRoute) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // If a logged-in user hits /login or /signup, redirect them to dashboard
-  if (user && (path === '/login' || path === '/signup')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
+  if (user && (pathname === '/login' || pathname === '/signup')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
   return NextResponse.next()
@@ -53,8 +49,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - payment (payment route)
-     * Feel free to modify this pattern to include more paths.
+     * - static assets (.svg, .png, etc.)
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
