@@ -55,7 +55,7 @@ export default async function RootLayout({
   /* 
      We can't easily get the pathname in RootLayout in all cases, 
      so we rely on child components (Dashboard/Login) to handle their own minor redirects 
-     if needed, but this RootLayout check serves as a global guard.
+     if needed, but this RootLayout check serves as a global guard
   */
 
   return (
