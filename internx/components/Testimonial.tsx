@@ -6,7 +6,7 @@ const Testimonial = () => {
     <section className="w-full flex justify-center py-[clamp(3rem,7vw,5rem)] relative z-10">
       <div className="max-w-3xl flex flex-col items-center text-center px-[5vw]">
         <h2 className="font-semibold text-white mb-8 lg:mb-12" style={{ fontSize: 'clamp(1.3rem, 4vw, 2rem)' }}>
-          Listen to our students
+          What Future Engineers Say About InternX
         </h2>
 
         <div className="flex items-center gap-[clamp(1.5rem,5vw,2.5rem)]">
@@ -27,14 +27,16 @@ const Testimonial = () => {
         </div>
 
         <p className="mt-6 lg:mt-8 text-gray-400 leading-relaxed max-w-[500px] font-medium" style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.125rem)' }}>
-          "This is the best platform I've seen—its unique teaching style aligns with industry needs and has greatly improved me."
+          "Before InternX, I only watched tutorials. Here, I actually worked on projects with deadlines and team collaboration"
         </p>
 
+        <h2 className='mt-8 lg:mt-10 text-white leading-relaxed max-w-[500px] font-medium' style={{ fontSize: 'clamp(1.3rem, 4vw, 2rem)' }}>"Your Future Won’t Wait."</h2>
+
         <button
-          className="mt-10 lg:mt-12 bg-[#ff1a1a] hover:bg-[#ff3333] transition-colors text-white rounded-full font-medium shadow-[0_0_25px_rgba(255,26,26,0.5)] hover:cursor-pointer"
+          className="mt-6 lg:mt-8 bg-[#ff1a1a] hover:bg-[#ff3333] transition-colors text-white rounded-full font-medium shadow-[0_0_25px_rgba(255,26,26,0.5)] hover:cursor-pointer"
           style={{ fontSize: 'clamp(0.85rem, 2.5vw, 1rem)', padding: 'clamp(0.6rem,2vw,0.875rem) clamp(2rem,6vw,3rem)' }}
         >
-          Get Started
+          Register Now
         </button>
       </div>
     </section>

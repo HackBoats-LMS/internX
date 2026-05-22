@@ -23,20 +23,21 @@ const Hero = () => {
             style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)' }}
           >
             Stop Collecting Certificates.<br />
-            Start Shipping Products
+            Start Building Real Experience.
           </h1>
           <p
-            className="text-white/70 text-center font-light leading-relaxed max-w-[480px] mt-0"
+            className="text-white/70 text-center font-light leading-relaxed max-w-[580px] mt-0"
             style={{ fontSize: 'clamp(0.85rem, 2.5vw, 1.05rem)' }}
           >
-            Onboard to a simulated engineering floor and build the real-world portfolio that actually gets you hired.
+            Experience how real tech teams work through internships, sprint planning,
+            projects, collaboration, mentorship, and execution-driven learning.
           </p>
           <div className="flex flex-row gap-4 mt-3 lg:mt-3">
             <button
               className="bg-[#ff1a1a] hover:bg-[#ff3333] transition-colors text-white rounded-full font-medium hover:cursor-pointer"
               style={{ fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)', padding: 'clamp(0.55rem, 1.5vw, 0.875rem) clamp(1.5rem, 4vw, 2.5rem)' }}
             >
-              Get Started
+              Register Now
             </button>
             <button
               className="border border-white hover:bg-[rgba(255,255,255,0.1)] transition-colors text-white rounded-full font-medium hover:cursor-pointer"

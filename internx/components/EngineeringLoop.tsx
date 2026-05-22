@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import StepCard from './StepCard';
 
@@ -9,20 +11,20 @@ const EngineeringLoop = () => {
           className="font-semibold tracking-wide text-center text-[#f8f8f8] mb-3 lg:mb-4"
           style={{ fontSize: 'clamp(1.4rem, 4vw, 2.1rem)' }}
         >
-          From Classroom to Command Center
+          From Engineering Student to Industry Contributor
         </h2>
         <p
           className="text-gray-400 text-center font-light mb-[clamp(2rem,5vw,4rem)] max-w-2xl"
           style={{ fontSize: 'clamp(0.85rem, 2vw, 1.05rem)' }}
         >
-          The 4-step engineering loop that turns students into teammates.
+          The 4-step engineering loop that turns students into Engineers.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[clamp(0.75rem,2vw,1.5rem)] w-full">
           <StepCard
             step="01"
             title="Onboarding"
-            desc="Choose your role: Dev, Designer, or Tester."
+            desc="Select your domain, join your team, and start working like a real intern from Day 1."
             SVGContent={
               <g stroke="#c50d0d" strokeWidth="2.5" strokeLinecap="butt">
                 <line className="glyph-line" x1="13" y1="70" x2="27" y2="70" />
@@ -43,7 +45,7 @@ const EngineeringLoop = () => {
           <StepCard
             step="02"
             title="Sprint Planning"
-            desc="Receive real-world tickets via a simulated board."
+            desc="Collaborate with teams on real-world projects using agile workflows."
             SVGContent={
               <g stroke="#c50d0d" strokeWidth="2.5" strokeLinecap="butt">
                 <line className="glyph-line" x1="33" y1="50" x2="47" y2="50" />
@@ -56,7 +58,7 @@ const EngineeringLoop = () => {
           <StepCard
             step="03"
             title="Build & Review"
-            desc="Submit your work for a Lead Engineer's critique and code review."
+            desc="Submit your work, receive mentor feedback, improve your solutions, and sharpen industry-level skills."
             SVGContent={
               <g strokeWidth="2.5" strokeLinecap="butt">
                 <line className="glyph-line" x1="15" y1="85" x2="25" y2="75" stroke="#E9E8E4" />
@@ -73,7 +75,8 @@ const EngineeringLoop = () => {
           <StepCard
             step="04"
             title="The Ship"
-            desc="Deploy your feature to a production-ready environment."
+            desc="Build production-ready projects, showcase your portfolio, and prepare for real
+hiring opportunities."
             SVGContent={
               <g stroke="#c50d0d" strokeWidth="2.5" strokeLinecap="butt">
                 <line className="glyph-line" x1="13" y1="70" x2="27" y2="70" />
