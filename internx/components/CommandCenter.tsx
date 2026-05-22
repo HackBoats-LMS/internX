@@ -44,21 +44,22 @@ const CommandCenter = () => {
         {/* Left side */}
         <div className="w-full lg:w-1/2 p-[clamp(1.5rem,6vw,5rem)] flex flex-col justify-center items-center lg:items-start text-center lg:text-left relative z-10">
           <h2
-            className="leading-tight font-semibold mb-4 lg:mb-6"
+            className="leading-tight font-semibold mb-4 lg:mb-6 "
             style={{ fontSize: 'clamp(1.4rem, 4vw, 2.5rem)' }}
           >
-            Your Engineering<br />Command Center
+            Your Industry Simulation Workspace
           </h2>
           <p
             className="text-gray-400 mb-8 lg:mb-12 max-w-[400px] mx-auto lg:mx-0"
             style={{ fontSize: 'clamp(0.85rem, 2vw, 1.125rem)' }}
           >
-            Stop wondering if you're job-ready...<br />Prove it in a production simulation.
+            Replace passive learning with real execution, mentorship, collaboration, and
+project-driven growth
           </p>
 
           <div className="flex gap-[clamp(1.5rem,5vw,3.5rem)] relative z-10 justify-center lg:justify-start">
             {[
-              { icon: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></>, value: `${stats.dev}%`, label: 'Development\nsuccess' },
+              { icon: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></>, value: `${stats.dev}%`, label: 'Real Internship\n Workflow' },
               { icon: <><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></>, value: stats.tasks >= 1000 ? '1k+' : stats.tasks, label: 'Tasks\nCompleted' },
               { icon: <><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></>, value: `#${stats.rank}`, label: 'Local\nRank' },
             ].map(({ icon, value, label }, i) => (
