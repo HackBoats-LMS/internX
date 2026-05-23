@@ -17,18 +17,17 @@ const Footer = () => {
 
         {/* Left Col */}
         <div className="w-full lg:w-[35%] flex flex-col gap-4 lg:gap-5">
-          <div className="font-bold tracking-wide flex items-center text-2xl lg:text-[clamp(1.2rem,3vw,1.5rem)]">
-            <span>intern</span>
-            <span className="text-[#ff1a1a]">X</span>
+          <div className="flex items-center">
+            <img src="/internx-logo.png" alt="internX Logo" className="h-8 lg:h-10 w-auto object-contain" />
           </div>
           <p className="text-gray-600 font-medium leading-relaxed max-w-[250px] text-sm lg:text-[clamp(0.75rem,2vw,0.8125rem)]">
-            123 Innovation Street<br />
-            Tech District, CA 94103<br />
-            United States
+
+            201 and 203, lake view apartment,
+            Pragathi nagar , Kphb , hyd - 500090
           </p>
           <p className="text-gray-600 font-medium leading-relaxed text-sm lg:text-[clamp(0.75rem,2vw,0.8125rem)]">
-            Phone: +1 (555) 123-4567<br />
-            Email: contact@internx.inc
+            Phone: +91 8886099957 , +91 8886099927<br />
+            Email: official@internx.com
           </p>
           <div className="flex gap-4 mt-4 lg:mt-3">
             {[

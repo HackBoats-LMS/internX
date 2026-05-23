@@ -1,10 +1,14 @@
 import React from 'react';
 import Header from './Header';
 import OrbitSystem from './OrbitSystem';
+import Banner from './Banner';
 
 const Hero = () => {
   return (
-    <div className="relative w-full lg:min-h-screen flex flex-col pt-4">
+    <div className="relative w-full lg:min-h-screen flex flex-col">
+      <div className="relative z-20 w-full">
+        <Banner />
+      </div>
       {/* Background glowing gradients */}
       <div className="absolute top-[80%] left-[-5%] -translate-y-1/2 w-[650px] h-[650px] bg-[#ff1a1a]/50 blur-[150px] rounded-full pointer-events-none z-0" />
       <div className="absolute top-[120%] left-[-10%] -translate-y-1/2 w-[450px] h-[450px] bg-[#ff1a1a]/50 blur-[150px] rounded-full pointer-events-none z-0" />
@@ -38,12 +42,6 @@ const Hero = () => {
               style={{ fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)', padding: 'clamp(0.55rem, 1.5vw, 0.875rem) clamp(1.5rem, 4vw, 2.5rem)' }}
             >
               Register Now
-            </button>
-            <button
-              className="border border-white hover:bg-[rgba(255,255,255,0.1)] transition-colors text-white rounded-full font-medium hover:cursor-pointer"
-              style={{ fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)', padding: 'clamp(0.55rem, 1.5vw, 0.875rem) clamp(1.5rem, 4vw, 2.5rem)' }}
-            >
-              Explore
             </button>
           </div>
         </div>
