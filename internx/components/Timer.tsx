@@ -37,7 +37,7 @@ const Timer = () => {
             </div>
             
             <div className="flex items-center gap-1.5 leading-none">
-                <span className="text-sm font-black text-black tabular-nums">
+                <span className="text-2xl font-black text-black tabular-nums">
                     {timeLeft.days}
                 </span>
                 

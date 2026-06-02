@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import MeraEvents from './MeraEvents';
 
 const Testimonial = () => {
   return (
@@ -32,12 +33,7 @@ const Testimonial = () => {
 
         <h2 className='mt-8 lg:mt-10 text-white leading-relaxed max-w-[500px] font-medium' style={{ fontSize: 'clamp(1.3rem, 4vw, 2rem)' }}>"Your Future Won’t Wait."</h2>
 
-        <button
-          className="mt-6 lg:mt-8 bg-[#ff1a1a] hover:bg-[#ff3333] transition-colors text-white rounded-full font-medium shadow-[0_0_25px_rgba(255,26,26,0.5)] hover:cursor-pointer"
-          style={{ fontSize: 'clamp(0.85rem, 2.5vw, 1rem)', padding: 'clamp(0.6rem,2vw,0.875rem) clamp(2rem,6vw,3rem)' }}
-        >
-          Register Now
-        </button>
+        <MeraEvents />
       </div>
     </section>
   );
