@@ -38,3 +38,122 @@ body {
     transform: rotate(360deg);
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   EXAM PLATFORM STYLES (/exam/* routes)
+   These are scoped by class usage within the exam section only.
+───────────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  --color-brand-50: #f8fafc;
+  --color-brand-100: #f1f5f9;
+  --color-brand-200: #e2e8f0;
+  --color-brand-300: #cbd5e1;
+  --color-brand-400: #94a3b8;
+  --color-brand-500: #64748b;
+  --color-brand-600: #475569;
+  --color-brand-700: #334155;
+  --color-brand-800: #1e293b;
+  --color-brand-900: #0f172a;
+  --color-brand-950: #020617;
+}
+
+:root {
+  --exam-background: 0 0% 1.2%;
+  --exam-foreground: 0 0% 100%;
+  --exam-card: 240 11% 9%;
+  --exam-primary: 0 72% 51%;
+  --exam-secondary: 240 17% 4.7%;
+  --exam-muted: 240 5% 15%;
+  --exam-muted-foreground: 215 16% 65%;
+  --exam-destructive: 0 84% 60%;
+  --exam-border: 0 0% 15%;
+  --exam-input: 0 0% 15%;
+  --exam-ring: 0 72% 51%;
+  --exam-radius: 0.5rem;
+}
+
+/* Exam Animations */
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-in {
+  animation: slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Exam Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--exam-muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--exam-muted-foreground) / 0.5);
+}
+
+/* Exam Footer Utilities */
+.ix-footer {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1.5rem;
+  margin-top: auto;
+  border-top: 1px solid rgba(255,255,255,0.03);
+  width: 100%;
+  box-sizing: border-box;
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+
+.ix-footer:hover {
+  opacity: 0.95;
+}
+
+.ix-footer-text {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.ix-footer-logo {
+  height: 20px;
+  width: auto;
+  object-fit: contain;
+}
+
+.shadow-subtle {
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
