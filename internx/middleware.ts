@@ -16,6 +16,12 @@ const authRoutes = ['/login', '/signup']
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // Let NextAuth handle all its own routes without interference    // EXAM PLATFORM: Bypass NextAuth API routes
+  if (pathname.startsWith('/api/auth')) {
+    return NextResponse.next()
+  }
+
   const token = request.cookies.get(COOKIE_NAME)?.value
 
   let isAuthenticated = false
