@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
@@ -1131,7 +1131,7 @@ export default function AdminDashboard() {
                                             value={qForm.text}
                                             rows={4}
                                             onChange={e => setQForm({ ...qForm, text: e.target.value })}
-                                            className="w-full text-sm border border-input bg-background rounded-md px-3 py-2 ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-y min-h-[80px]"
+                                            className="w-full text-sm border border-white/10 bg-[#050505] text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all resize-y min-h-[80px]"
                                         />
 
                                         <div className="space-y-2">
