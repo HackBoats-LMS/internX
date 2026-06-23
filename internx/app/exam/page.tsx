@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { getProfile, checkExamStatus } from '@/app/exam/actions'
@@ -258,7 +259,7 @@ export default function LoginPage() {
       <div className="ix-page">
         {/* Top Navbar */}
         <nav className="ix-nav">
-          <img src="/internx-logo-white.png" alt="InternX" className="ix-nav-logo" />
+          <Image src="/internx-logo-white.png" alt="InternX" className="ix-nav-logo" width={150} height={36} priority />
         </nav>
 
         {/* Hero Section */}
@@ -291,10 +292,13 @@ export default function LoginPage() {
           <div className="ix-hero-right">
             <div className="ix-illustration-container">
               <div className="ix-red-glow" />
-              <img
+              <Image
                 src="/Kids Studying from Home-rafiki.svg"
                 alt="Student Assessment Illustration"
                 className="ix-illustration-img"
+                width={620}
+                height={620}
+                priority
               />
             </div>
           </div>

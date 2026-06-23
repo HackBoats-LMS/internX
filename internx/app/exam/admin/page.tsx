@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/exam/ui/button'
 import { Input } from '@/components/exam/ui/input'
@@ -111,10 +112,8 @@ export default function AdminDashboard() {
         { id: 'security', label: 'Security', icon: Lock },
     ]
 
-    useEffect(() => { loadData() }, [])
-
     // Initial load — shows full-page spinner
-    const loadData = async () => {
+    const loadData = useCallback(async () => {
         setLoading(true)
         try {
             const adminData = await fetchAdminData()
@@ -129,7 +128,9 @@ export default function AdminDashboard() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [router])
+
+    useEffect(() => { loadData() }, [loadData])
 
     // Background refresh — does NOT show full spinner or reset any navigation state
     const silentRefresh = async () => {
@@ -534,7 +535,7 @@ export default function AdminDashboard() {
                         >
                             <div className="p-6 h-16 border-b border-white/10 flex items-center justify-between px-6">
                                 <div className="flex items-center">
-                                    <img src="/internx-logo-white.png" className="h-6 w-auto mr-3" alt="InternX" />
+                                    <Image src="/internx-logo-white.png" className="h-6 w-auto mr-3" alt="InternX" width={100} height={24} priority />
                                     <span className="font-semibold text-gray-200 tracking-tight">Console</span>
                                 </div>
                                 <button onClick={() => setMobileMenuOpen(false)}>
@@ -569,7 +570,7 @@ export default function AdminDashboard() {
             {/* ── Desktop Sidebar ─────────────────────────────────────────── */}
             <div className="w-64 bg-[#050505] border-r border-white/10 hidden md:flex flex-col fixed h-full z-10">
                 <div className="p-6 h-16 border-b border-white/10 flex items-center px-6">
-                    <img src="/internx-logo-white.png" className="h-6 w-auto mr-3" alt="InternX" />
+                    <Image src="/internx-logo-white.png" className="h-6 w-auto mr-3" alt="InternX" width={100} height={24} priority />
 
                 </div>
                 <nav className="flex-1 p-4 space-y-1 overflow-y-auto">

@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import Image from 'next/image';
 import { FaLinkedin, FaInstagram, FaWhatsapp, FaEnvelope } from 'react-icons/fa';
 
 const Footer = () => {
@@ -18,7 +19,7 @@ const Footer = () => {
         {/* Left Col */}
         <div className="w-full lg:w-[35%] flex flex-col gap-4 lg:gap-5">
           <div className="flex items-center">
-            <img src="/internx-logo.png" alt="internX Logo" className="h-8 lg:h-10 w-auto object-contain" />
+            <Image src="/internx-logo.png" alt="internX Logo" className="h-8 lg:h-10 w-auto object-contain" width={120} height={40} />
           </div>
           <p className="text-gray-600 font-medium leading-relaxed max-w-[250px] text-sm lg:text-[clamp(0.75rem,2vw,0.8125rem)]">
 
@@ -79,10 +80,12 @@ const Footer = () => {
         </p>
         <a href="https://hackboats.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 text-sm text-gray-500 font-medium group cursor-pointer hover:text-gray-700 transition-colors">
           <span className="translate-y-[3px]">Powered by</span>
-          <img 
+          <Image 
             src="/hackboats-logo.png" 
             alt="HackBoats Logo" 
             className="h-6 sm:h-7 object-contain group-hover:scale-105 transition-transform"
+            width={100}
+            height={28}
             onError={(e) => {
               e.currentTarget.style.display = 'none';
               if (e.currentTarget.nextElementSibling) {
