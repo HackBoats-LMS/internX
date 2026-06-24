@@ -6,6 +6,7 @@ export interface IQuestion extends Document {
     correctOption: number
     setName: string
     sectionName: string
+    type?: 'mcq' | 'descriptive'
     createdAt?: Date
     updatedAt?: Date
 }
@@ -17,6 +18,7 @@ const QuestionSchema = new Schema<IQuestion>(
         correctOption: { type: Number, required: true, default: 0 },
         setName: { type: String, default: 'Default Set' },
         sectionName: { type: String, default: 'General' },
+        type: { type: String, enum: ['mcq', 'descriptive'], default: 'mcq' }
     },
     {
         timestamps: true,

@@ -9,7 +9,7 @@ import {
     Users, HelpCircle, Settings, Search, Plus, Trash2,
     RotateCcw, School, Building2, ChevronRight, Loader2, LogOut,
     FileSpreadsheet, BookOpen, Layers, CheckCircle2,
-    PencilLine, X, ChevronLeft, ChevronDown, Filter, Lock, Menu
+    PencilLine, X, ChevronLeft, ChevronDown, Filter, Lock, Menu, FileText
 } from 'lucide-react'
 import { toast } from 'sonner'
 import * as XLSX from 'xlsx'
@@ -41,9 +41,10 @@ interface QForm {
     text: string
     opt1: string; opt2: string; opt3: string; opt4: string
     correct: number
+    type: 'mcq' | 'descriptive'
 }
 
-const emptyForm = (): QForm => ({ text: '', opt1: '', opt2: '', opt3: '', opt4: '', correct: 0 })
+const emptyForm = (): QForm => ({ text: '', opt1: '', opt2: '', opt3: '', opt4: '', correct: 0, type: 'mcq' })
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function getSetsFromQuestions(questions: any[]): string[] {
@@ -69,7 +70,7 @@ function getQuestionsForSection(questions: any[], setName: string, sectionName: 
 
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function AdminDashboard() {
-    const [activeTab, setActiveTab] = useState<'users' | 'questions' | 'config' | 'master' | 'security'>('users')
+    const [activeTab, setActiveTab] = useState<'users' | 'questions' | 'descriptive' | 'config' | 'master' | 'security'>('users')
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [loading, setLoading] = useState(true)
     const [data, setData] = useState<any>({ users: [], questions: [], sets: [], config: {}, colleges: [], departments: [] })
@@ -97,6 +98,9 @@ export default function AdminDashboard() {
     const [newCollege, setNewCollege] = useState('')
     const [newDepartment, setNewDepartment] = useState({ name: '', collegeId: '' })
     const [newAdminPassword, setNewAdminPassword] = useState('') // New admin password
+    const [selectedUserForAnswers, setSelectedUserForAnswers] = useState<any | null>(null)
+    const [mounted, setMounted] = useState(false)
+    useEffect(() => { setMounted(true) }, [])
     const router = useRouter()
 
     // ── Export State ─────────────────────────────────────────────────────────
@@ -107,6 +111,7 @@ export default function AdminDashboard() {
     const tabs = [
         { id: 'users', label: 'Students', icon: Users },
         { id: 'questions', label: 'Questions', icon: HelpCircle },
+        { id: 'descriptive', label: 'Descriptive Answers', icon: FileText },
         { id: 'config', label: 'Exam Config', icon: Settings },
         { id: 'master', label: 'Master Data', icon: School },
         { id: 'security', label: 'Security', icon: Lock },
@@ -195,7 +200,7 @@ export default function AdminDashboard() {
 
     /** Save question (add or update) */
     const handleSaveQuestion = async () => {
-        const { text, opt1, opt2, opt3, opt4, correct } = qForm
+        const { text, opt1, opt2, opt3, opt4, correct, type } = qForm
 
         // Read from refs — always current, never affected by stale closures
         const setName = currentSetRef.current.trim()
@@ -211,20 +216,23 @@ export default function AdminDashboard() {
             toast.error('No section selected — go back and enter a section')
             return
         }
-        if (!text.trim() || !opt1.trim() || !opt2.trim() || !opt3.trim() || !opt4.trim()) {
-            toast.error('Fill in the question and all 4 options')
+        if (!text.trim()) {
+            toast.error('Fill in the question text')
             return
         }
-
+        if (type === 'mcq' && (!opt1.trim() || !opt2.trim() || !opt3.trim() || !opt4.trim())) {
+            toast.error('Fill in all 4 options')
+            return
+        }
 
         setSaving(true)
         try {
             if (editingId) {
-                await updateQuestion(editingId, text.trim(), [opt1.trim(), opt2.trim(), opt3.trim(), opt4.trim()], correct, setName, sectionName)
+                await updateQuestion(editingId, text.trim(), type === 'mcq' ? [opt1.trim(), opt2.trim(), opt3.trim(), opt4.trim()] : [], correct, setName, sectionName, type)
                 toast.success('Question updated')
                 setEditingId(null)
             } else {
-                await addQuestion(text.trim(), [opt1.trim(), opt2.trim(), opt3.trim(), opt4.trim()], correct, setName, sectionName)
+                await addQuestion(text.trim(), type === 'mcq' ? [opt1.trim(), opt2.trim(), opt3.trim(), opt4.trim()] : [], correct, setName, sectionName, type)
                 toast.success(`✅ Saved to "${setName}" › ${sectionName}`)
             }
             setQForm(emptyForm())
@@ -256,6 +264,7 @@ export default function AdminDashboard() {
             opt3: q.options?.[2] || '',
             opt4: q.options?.[3] || '',
             correct: q.correctOption ?? 0,
+            type: q.type || 'mcq'
         })
         setEditingId(q._id)
         setQView('section')
@@ -514,6 +523,14 @@ export default function AdminDashboard() {
         const matchesCollege = !exportCollege || (u.college || '').trim() === exportCollege.trim()
         return matchesSearch && matchesCollege
     })
+
+    if (!mounted) {
+        return (
+            <div className="min-h-screen bg-[#0d0d12] flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+            </div>
+        )
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
     return (
@@ -899,6 +916,17 @@ export default function AdminDashboard() {
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
                                                         <div className="flex gap-1 justify-end">
+                                                            {(() => {
+                                                                const userAnswers = (data.descriptiveAnswers || []).filter((ans: any) => ans.userId === user._id)
+                                                                if (userAnswers.length === 0) return null
+                                                                return (
+                                                                    <Button variant="ghost" size="sm" title="View Descriptive Answers"
+                                                                        className="w-8 h-8 p-0 text-gray-400 hover:text-blue-400 hover:bg-blue-500/15"
+                                                                        onClick={() => setSelectedUserForAnswers(user)}>
+                                                                        <FileText className="w-3.5 h-3.5" />
+                                                                    </Button>
+                                                                )
+                                                            })()}
                                                             <Button variant="ghost" size="sm" title="Reset Exam"
                                                                 className="w-8 h-8 p-0 text-gray-400 hover:text-orange-400 hover:bg-orange-500/15"
                                                                 onClick={() => handleResetExam(user._id)}>
@@ -1135,26 +1163,52 @@ export default function AdminDashboard() {
                                             className="w-full text-sm border border-white/10 bg-[#050505] text-white placeholder:text-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all resize-y min-h-[80px]"
                                         />
 
-                                        <div className="space-y-2">
-                                            {([1, 2, 3, 4] as const).map((i, idx) => (
-                                                <label key={i} className={`flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all ${qForm.correct === idx ? 'bg-emerald-500/10 border-emerald-500/50' : 'bg-[#050505] border-white/10'}`}>
-                                                    <input
-                                                        type="radio"
-                                                        name="correct-opt"
-                                                        checked={qForm.correct === idx}
-                                                        onChange={() => setQForm({ ...qForm, correct: idx })}
-                                                        className="accent-emerald-500"
-                                                    />
-                                                    <input
-                                                        type="text"
-                                                        placeholder={`Option ${i}${qForm.correct === idx ? ' ✓ (correct)' : ''}`}
-                                                        value={(qForm as any)[`opt${i}`]}
-                                                        onChange={e => setQForm({ ...qForm, [`opt${i}`]: e.target.value })}
-                                                        className="flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400"
-                                                    />
-                                                </label>
-                                            ))}
+                                        {/* Question Type Selector */}
+                                        <div className="flex gap-4 p-2.5 bg-[#050505] border border-white/10 rounded-lg">
+                                            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-gray-300">
+                                                <input
+                                                    type="radio"
+                                                    name="question-type"
+                                                    checked={qForm.type === 'mcq'}
+                                                    onChange={() => setQForm({ ...qForm, type: 'mcq' })}
+                                                    className="accent-blue-500"
+                                                />
+                                                MCQ Question
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-gray-300">
+                                                <input
+                                                    type="radio"
+                                                    name="question-type"
+                                                    checked={qForm.type === 'descriptive'}
+                                                    onChange={() => setQForm({ ...qForm, type: 'descriptive' })}
+                                                    className="accent-blue-500"
+                                                />
+                                                Descriptive Question
+                                            </label>
                                         </div>
+
+                                        {qForm.type === 'mcq' && (
+                                            <div className="space-y-2 animate-fadeIn">
+                                                {([1, 2, 3, 4] as const).map((i, idx) => (
+                                                    <label key={i} className={`flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all ${qForm.correct === idx ? 'bg-emerald-500/10 border-emerald-500/50' : 'bg-[#050505] border-white/10'}`}>
+                                                        <input
+                                                            type="radio"
+                                                            name="correct-opt"
+                                                            checked={qForm.correct === idx}
+                                                            onChange={() => setQForm({ ...qForm, correct: idx })}
+                                                            className="accent-emerald-500"
+                                                        />
+                                                        <input
+                                                            type="text"
+                                                            placeholder={`Option ${i}${qForm.correct === idx ? ' ✓ (correct)' : ''}`}
+                                                            value={(qForm as any)[`opt${i}`]}
+                                                            onChange={e => setQForm({ ...qForm, [`opt${i}`]: e.target.value })}
+                                                            className="flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400"
+                                                        />
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        )}
 
                                         <div className="flex flex-col gap-2 pt-1">
                                             <Button
@@ -1212,6 +1266,87 @@ export default function AdminDashboard() {
                                                 onDelete={() => handleDeleteQuestion(q._id)}
                                             />
                                         ))
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ════════════════════════════════════════════════════
+                            DESCRIPTIVE ANSWERS TAB
+                        ════════════════════════════════════════════════════ */}
+                        {activeTab === 'descriptive' && (
+                            <div className="space-y-4 animate-fadeIn">
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                    <div>
+                                        <h3 className="text-base font-semibold text-white">Student Descriptive Responses</h3>
+                                        <p className="text-xs text-gray-400">View and review all descriptive answers submitted by students.</p>
+                                    </div>
+                                    <div className="relative w-full sm:max-w-xs">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                        <Input 
+                                            placeholder="Search student, question, or answer..." 
+                                            className="pl-9 h-9 text-sm" 
+                                            value={searchTerm} 
+                                            onChange={e => setSearchTerm(e.target.value)} 
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="border border-white/10 rounded-lg overflow-x-auto w-full bg-[#0d0d12]">
+                                    <table className="w-full text-sm min-w-[900px]">
+                                        <thead>
+                                            <tr className="bg-[#050505] border-b border-white/10 text-xs text-gray-300 uppercase tracking-wide">
+                                                <th className="px-6 py-3 text-left font-medium">Student Details</th>
+                                                <th className="px-6 py-3 text-left font-medium">Set & Section</th>
+                                                <th className="px-6 py-3 text-left font-medium">Question</th>
+                                                <th className="px-6 py-3 text-left font-medium">Submitted Answer</th>
+                                                <th className="px-6 py-3 text-left font-medium">Submission Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-white/5">
+                                            {(data.descriptiveAnswers || [])
+                                                .filter((ans: any) => {
+                                                    if (!searchTerm) return true
+                                                    const term = searchTerm.toLowerCase()
+                                                    const nameMatch = ans.user?.fullName?.toLowerCase().includes(term)
+                                                    const emailMatch = ans.user?.email?.toLowerCase().includes(term)
+                                                    const rollMatch = ans.user?.rollNo?.toLowerCase().includes(term)
+                                                    const qMatch = ans.questionId?.questionText?.toLowerCase().includes(term)
+                                                    const ansMatch = ans.answerText?.toLowerCase().includes(term)
+                                                    const setMatch = ans.setName?.toLowerCase().includes(term)
+                                                    return nameMatch || emailMatch || rollMatch || qMatch || ansMatch || setMatch
+                                                })
+                                                .map((ans: any) => (
+                                                    <tr key={ans._id} className="hover:bg-[#050505]/50 transition-colors align-top">
+                                                        <td className="px-6 py-4 max-w-[250px]">
+                                                            <div className="font-semibold text-white">{ans.user?.fullName || 'Unknown Student'}</div>
+                                                            <div className="text-xs text-gray-300">{ans.user?.email}</div>
+                                                            <div className="text-xs text-gray-400 mt-1 font-mono">{ans.user?.rollNo}</div>
+                                                            <div className="text-[11px] text-gray-500 mt-0.5">{ans.user?.college} • {ans.user?.department}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-xs">
+                                                            <div className="font-medium text-gray-200">{ans.setName}</div>
+                                                            <div className="text-gray-400 mt-1">{ans.questionId?.sectionName || 'General'}</div>
+                                                        </td>
+                                                        <td className="px-6 py-4 max-w-[300px]">
+                                                            <p className="text-xs text-gray-300 whitespace-pre-wrap leading-relaxed">
+                                                                {ans.questionId?.questionText || <span className="text-rose-500 italic">Deleted Question</span>}
+                                                            </p>
+                                                        </td>
+                                                        <td className="px-6 py-4 max-w-[350px]">
+                                                            <div className="text-xs text-gray-100 bg-white/5 border border-white/5 rounded-lg p-3 whitespace-pre-wrap font-mono leading-relaxed max-h-[200px] overflow-y-auto">
+                                                                {ans.answerText}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-xs text-gray-400 whitespace-nowrap">
+                                                            {new Date(ans.createdAt).toLocaleString('en-IN')}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                        </tbody>
+                                    </table>
+                                    {(!data.descriptiveAnswers || data.descriptiveAnswers.length === 0) && (
+                                        <div className="p-12 text-center text-gray-400 text-sm">No descriptive answers submitted yet.</div>
                                     )}
                                 </div>
                             </div>
@@ -1327,6 +1462,86 @@ export default function AdminDashboard() {
                     </div>
                 )}
             </main>
+
+            {/* ── Descriptive Answers Modal Overlay ────────────────────────── */}
+            <AnimatePresence>
+                {selectedUserForAnswers && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                        onClick={() => setSelectedUserForAnswers(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, y: 15 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.95, y: 15 }}
+                            transition={{ type: 'spring', duration: 0.4 }}
+                            className="bg-[#0d0d12]/95 border border-white/10 shadow-2xl rounded-2xl p-6 max-w-2xl w-full max-h-[85vh] flex flex-col"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Modal Header */}
+                            <div className="flex items-start justify-between pb-4 border-b border-white/10">
+                                <div>
+                                    <h3 className="text-lg font-bold text-white">Descriptive Answers</h3>
+                                    <p className="text-sm text-gray-300 font-medium mt-1">{selectedUserForAnswers.fullName}</p>
+                                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-400 mt-0.5">
+                                        <span>Roll: <span className="font-mono text-gray-300">{selectedUserForAnswers.rollNo}</span></span>
+                                        <span>•</span>
+                                        <span>{selectedUserForAnswers.college}</span>
+                                        <span>•</span>
+                                        <span>{selectedUserForAnswers.department}</span>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setSelectedUserForAnswers(null)}
+                                    className="p-1 rounded-lg text-gray-400 hover:text-gray-200 hover:bg-white/5 transition-all"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            {/* Modal Body */}
+                            <div className="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
+                                {(() => {
+                                    const answers = (data.descriptiveAnswers || []).filter(
+                                        (ans: any) => ans.userId === selectedUserForAnswers._id
+                                    )
+                                    return answers.map((ans: any, index: number) => (
+                                        <div key={ans._id || index} className="p-4 border border-white/5 bg-[#050505]/40 rounded-xl space-y-3">
+                                            <div className="flex items-start justify-between gap-3">
+                                                <span className="shrink-0 mt-0.5 px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] font-bold uppercase tracking-wider">
+                                                    {ans.setName || 'Default Set'} › {ans.questionId?.sectionName || 'General'}
+                                                </span>
+                                                <span className="text-[10px] text-gray-500">
+                                                    {ans.createdAt ? new Date(ans.createdAt).toLocaleString('en-IN') : ''}
+                                                </span>
+                                            </div>
+                                            <p className="text-sm font-semibold text-gray-200 leading-relaxed whitespace-pre-wrap">
+                                                {ans.questionId?.questionText || <span className="text-rose-400 italic">Deleted Question</span>}
+                                            </p>
+                                            <div className="text-xs text-gray-100 bg-white/5 border border-white/5 rounded-lg p-3 whitespace-pre-wrap font-mono leading-relaxed">
+                                                {ans.answerText}
+                                            </div>
+                                        </div>
+                                    ))
+                                })()}
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="pt-4 border-t border-white/10 flex justify-end">
+                                <Button
+                                    onClick={() => setSelectedUserForAnswers(null)}
+                                    className="bg-slate-800 hover:bg-slate-700 text-white font-medium text-sm px-4 h-9 shadow-sm"
+                                >
+                                    Close Viewer
+                                </Button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }
@@ -1350,25 +1565,40 @@ function QuestionCard({ q, qIdx, onEdit, onDelete, highlight = false }: {
                     <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-[#15151a] text-[10px] font-black text-gray-400 flex items-center justify-center">
                         {qIdx + 1}
                     </span>
-                    <p className="text-sm font-semibold text-gray-100 leading-snug flex-1 whitespace-pre-wrap">{q.questionText}</p>
+                    <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-100 leading-snug whitespace-pre-wrap">
+                            {q.questionText}
+                            {(q.type === 'descriptive' || (q.options && q.options.length === 0)) && (
+                                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                    Descriptive
+                                </span>
+                            )}
+                        </p>
+                    </div>
                 </div>
 
-                {/* Options grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 ml-7">
-                    {(q.options || []).map((opt: string, idx: number) => (
-                        <div
-                            key={idx}
-                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs ${idx === q.correctOption
-                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-medium'
-                                : 'bg-[#050505] border-white/5 text-gray-300'}`}
-                        >
-                            <span className={`w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center shrink-0 ${idx === q.correctOption ? 'bg-emerald-500 text-white' : 'bg-[#0d0d12] border border-white/10 text-gray-400'}`}>
-                                {String.fromCharCode(65 + idx)}
-                            </span>
-                            {opt}
-                        </div>
-                    ))}
-                </div>
+                {/* Options grid or descriptive indicator */}
+                {q.type === 'descriptive' || (q.options && q.options.length === 0) ? (
+                    <div className="ml-7 text-xs text-gray-400 italic bg-white/5 border border-white/5 rounded-lg px-3 py-2 w-fit">
+                        📝 Descriptive Question (student writes an answer)
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 ml-7">
+                        {(q.options || []).map((opt: string, idx: number) => (
+                            <div
+                                key={idx}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs ${idx === q.correctOption
+                                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-medium'
+                                    : 'bg-[#050505] border-white/5 text-gray-300'}`}
+                            >
+                                <span className={`w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center shrink-0 ${idx === q.correctOption ? 'bg-emerald-500 text-white' : 'bg-[#0d0d12] border border-white/10 text-gray-400'}`}>
+                                    {String.fromCharCode(65 + idx)}
+                                </span>
+                                {opt}
+                            </div>
+                        ))}
+                    </div>
+                )}
 
                 {/* Actions */}
                 <div className="flex gap-2 mt-3 ml-7 transition-opacity">
