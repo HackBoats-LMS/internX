@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -14,6 +14,7 @@ type Question = {
     question_text: string
     options: string[]
     section_name?: string
+    type?: 'mcq' | 'descriptive'
 }
 
 // ── Status helpers ───────────────────────────────────────────────────────────
@@ -24,7 +25,7 @@ export default function QuizPage() {
     const [loading, setLoading] = useState(true)
     const [questions, setQuestions] = useState<Question[]>([])
     const [currentIdx, setCurrentIdx] = useState(0)
-    const [answers, setAnswers] = useState<Record<string, number>>({})
+    const [answers, setAnswers] = useState<Record<string, number | string>>({})
     const [reviewMarked, setReviewMarked] = useState<Set<string>>(new Set())
     const [timeLeft, setTimeLeft] = useState(30 * 60)
     const [attemptId, setAttemptId] = useState<string | null>(null)
@@ -142,7 +143,13 @@ export default function QuizPage() {
 
                     const qData = await fetchQuestions(attempt._id)
                     if (qData?.length > 0) {
-                        setQuestions(qData.map((q: any) => ({ id: q._id, question_text: q.questionText, options: q.options, section_name: q.sectionName })))
+                        setQuestions(qData.map((q: any) => ({
+                            id: q._id,
+                            question_text: q.questionText,
+                            options: q.options,
+                            section_name: q.sectionName,
+                            type: q.type === 'descriptive' || (q.options && q.options.length === 0) ? 'descriptive' : 'mcq'
+                        })))
                         if (!document.fullscreenElement) {
                             try { await document.documentElement.requestFullscreen() } catch { }
                         }
@@ -174,6 +181,10 @@ export default function QuizPage() {
     // ── Keyboard navigation ──────────────────────────────────────────────────
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
+            const activeEl = document.activeElement
+            if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+                return
+            }
             if (e.key === 'ArrowRight' && currentIdx < questions.length - 1) setCurrentIdx(i => i + 1)
             if (e.key === 'ArrowLeft' && currentIdx > 0) setCurrentIdx(i => i - 1)
         }
@@ -186,7 +197,7 @@ export default function QuizPage() {
 
     const getStatus = (q: Question): QStatus => {
         if (reviewMarked.has(q.id)) return 'review'
-        if (answers[q.id] !== undefined) return 'answered'
+        if (answers[q.id] !== undefined && answers[q.id] !== '') return 'answered'
         return 'unanswered'
     }
 
@@ -209,7 +220,7 @@ export default function QuizPage() {
     // grouped sections for sidebar
     const sections = Array.from(new Set(questions.map(q => q.section_name || 'General')))
 
-    const answeredCount = Object.keys(answers).length
+    const answeredCount = Object.keys(answers).filter(qId => answers[qId] !== undefined && answers[qId] !== '').length
     const reviewCount = reviewMarked.size
     const unansweredCount = questions.length - answeredCount
     const progress = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0
@@ -400,29 +411,47 @@ export default function QuizPage() {
                                         {currentQ.question_text}
                                     </p>
                                 </div>
-
-                                {/* Options */}
-                                <div className="space-y-3">
-                                    {currentQ.options.map((opt, idx) => {
-                                        const selected = answers[currentQ.id] === idx
-                                        return (
-                                            <button
-                                                key={idx}
-                                                type="button"
-                                                onClick={() => handleAnswer(idx)}
-                                                className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-center gap-4 group active:scale-[0.99] ${selected
-                                                    ? 'border-blue-500 bg-blue-500/10 shadow-lg shadow-blue-500/5'
-                                                    : 'border-white/10 bg-[#0d0d12] hover:border-blue-500/30 hover:bg-white/5'}`}
-                                            >
-                                                <span className={`shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-all pointer-events-none ${selected ? 'border-blue-500 bg-blue-500 text-white' : 'border-white/20 text-gray-400 group-hover:border-blue-400'}`}>
-                                                    {String.fromCharCode(65 + idx)}
-                                                </span>
-                                                <span className={`text-sm md:text-base font-medium flex-1 pointer-events-none ${selected ? 'text-blue-200' : 'text-gray-200'}`}>{opt}</span>
-                                                {selected && <CheckCircle2 className="w-5 h-5 text-blue-500 shrink-0 pointer-events-none" />}
-                                            </button>
-                                        )
-                                    })}
-                                </div>
+                                {/* Options / Textarea */}
+                                {currentQ.type === 'descriptive' ? (
+                                    <div className="space-y-3 animate-fadeIn">
+                                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
+                                            Your Answer
+                                        </label>
+                                        <textarea
+                                            placeholder="Write your detailed answer here..."
+                                            value={(answers[currentQ.id] as string) || ''}
+                                            onChange={(e) => {
+                                                const val = e.target.value
+                                                const qId = currentQ.id
+                                                setAnswers(prev => ({ ...prev, [qId]: val }))
+                                            }}
+                                            rows={8}
+                                            className="w-full text-sm border-2 border-white/10 bg-[#0d0d12] text-white placeholder:text-gray-500 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all resize-y min-h-[160px]"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {currentQ.options.map((opt, idx) => {
+                                            const selected = answers[currentQ.id] === idx
+                                            return (
+                                                <button
+                                                    key={idx}
+                                                    type="button"
+                                                    onClick={() => handleAnswer(idx)}
+                                                    className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-center gap-4 group active:scale-[0.99] ${selected
+                                                        ? 'border-blue-500 bg-blue-500/10 shadow-lg shadow-blue-500/5'
+                                                        : 'border-white/10 bg-[#0d0d12] hover:border-blue-500/30 hover:bg-white/5'}`}
+                                                >
+                                                    <span className={`shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-all pointer-events-none ${selected ? 'border-blue-500 bg-blue-500 text-white' : 'border-white/20 text-gray-400 group-hover:border-blue-400'}`}>
+                                                        {String.fromCharCode(65 + idx)}
+                                                    </span>
+                                                    <span className={`text-sm md:text-base font-medium flex-1 pointer-events-none ${selected ? 'text-blue-200' : 'text-gray-200'}`}>{opt}</span>
+                                                    {selected && <CheckCircle2 className="w-5 h-5 text-blue-500 shrink-0 pointer-events-none" />}
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                )}
 
                                 {/* Desktop navigation buttons */}
                                 <div className="hidden md:flex items-center justify-between mt-8">

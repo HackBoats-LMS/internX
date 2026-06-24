@@ -8,6 +8,7 @@ import QuestionSet from '@/models/QuestionSet'
 import College from '@/models/College'
 import Department from '@/models/Department'
 import ExamAttempt from '@/models/ExamAttempt'
+import DescriptiveAnswer from '@/models/DescriptiveAnswer'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
@@ -86,6 +87,32 @@ export async function fetchAdminData() {
         .sort({ startedAt: -1 })
         .lean()
 
+    const rawDescriptiveAnswers = await DescriptiveAnswer.find({})
+        .populate('questionId')
+        .sort({ createdAt: -1 })
+        .lean()
+
+    const userMapForDescriptive = new Map<string, any>(users.map((u: any) => [u._id.toString(), u]))
+    const descriptiveAnswers = rawDescriptiveAnswers.map((da: any) => {
+        const u = userMapForDescriptive.get(da.userId)
+        return {
+            ...da,
+            _id: da._id.toString(),
+            questionId: da.questionId ? {
+                ...da.questionId,
+                _id: (da.questionId as any)._id?.toString()
+            } : null,
+            examAttemptId: da.examAttemptId?.toString(),
+            user: u ? {
+                fullName: u.fullName,
+                email: u.email,
+                rollNo: u.rollNo,
+                college: u.college,
+                department: u.department
+            } : null
+        }
+    })
+
     const attemptMap = new Map<string, any>()
     for (const attempt of allAttempts) {
         const uid = attempt.userId.toString()
@@ -117,7 +144,8 @@ export async function fetchAdminData() {
         questions: JSON.parse(JSON.stringify(questions)),
         users: JSON.parse(JSON.stringify(usersWithAttempts)),
         colleges: JSON.parse(JSON.stringify(colleges)),
-        departments: JSON.parse(JSON.stringify(departments))
+        departments: JSON.parse(JSON.stringify(departments)),
+        descriptiveAnswers: JSON.parse(JSON.stringify(descriptiveAnswers))
     }
 }
 
@@ -155,41 +183,61 @@ export async function updateConfig(timeLimit: number, numQuestions: number) {
     return { success: true }
 }
 
-export async function addQuestion(text: string, options: string[], correctOption: number, setName: string, sectionName: string) {
+export async function addQuestion(text: string, options: string[], correctOption: number, setName: string, sectionName: string, type: string = 'mcq') {
     if (!await isAdmin()) throw new Error("Unauthorized")
     await dbConnect()
 
     const cleanSetName = (setName || '').trim() || 'Default Set'
     const cleanSectionName = (sectionName || '').trim() || 'General'
 
-    if (!text || options.length < 4) throw new Error('Invalid question data')
+    if (!text || (type === 'mcq' && (!options || options.length < 4))) throw new Error('Invalid question data')
 
-    await Question.create({
+    const newQuestionData: any = {
         questionText: text.trim(),
-        options: options.map(o => o.trim()),
-        correctOption: Number(correctOption),
         setName: cleanSetName,
-        sectionName: cleanSectionName
-    })
+        sectionName: cleanSectionName,
+        type: type
+    }
+
+    if (type === 'mcq') {
+        newQuestionData.options = options.map(o => o.trim())
+        newQuestionData.correctOption = Number(correctOption)
+    } else {
+        newQuestionData.options = []
+        newQuestionData.correctOption = 0
+    }
+
+    await Question.create(newQuestionData)
     revalidatePath('/exam/admin')
     await invalidateRedisTag('question')
     return { success: true }
 }
 
-export async function updateQuestion(id: string, text: string, options: string[], correctOption: number, setName: string, sectionName: string) {
+export async function updateQuestion(id: string, text: string, options: string[], correctOption: number, setName: string, sectionName: string, type: string = 'mcq') {
     if (!await isAdmin()) throw new Error("Unauthorized")
     await dbConnect()
 
     const cleanSetName = (setName || '').trim() || 'Default Set'
     const cleanSectionName = (sectionName || '').trim() || 'General'
 
-    await Question.findByIdAndUpdate(id, {
+    if (!text || (type === 'mcq' && (!options || options.length < 4))) throw new Error('Invalid question data')
+
+    const updateData: any = {
         questionText: text.trim(),
-        options: options.map(o => o.trim()),
-        correctOption: Number(correctOption),
         setName: cleanSetName,
-        sectionName: cleanSectionName
-    }, { new: true })
+        sectionName: cleanSectionName,
+        type: type
+    }
+
+    if (type === 'mcq') {
+        updateData.options = options.map(o => o.trim())
+        updateData.correctOption = Number(correctOption)
+    } else {
+        updateData.options = []
+        updateData.correctOption = 0
+    }
+
+    await Question.findByIdAndUpdate(id, updateData, { new: true })
     revalidatePath('/exam/admin')
     await invalidateRedisTag('question')
     return { success: true }
@@ -476,25 +524,47 @@ export async function fetchQuestions(attemptId: string) {
     return shuffled
 }
 
-export async function submitExam(attemptId: string, answers: Record<string, number>, status: string) {
+export async function submitExam(attemptId: string, answers: Record<string, number | string>, status: string) {
     await dbConnect()
     const attempt = await ExamAttempt.findById(attemptId)
     if (!attempt) throw new Error("Attempt not found")
 
     let score = 0
     const questions = await getCachedQuestionsWithAnswersForSet(attempt.assignedSet)
-    const questionMap = new Map<string, { correctOption: number, [key: string]: any }>(
+    const questionMap = new Map<string, { correctOption: number, type?: string, [key: string]: any }>(
         questions.map((q: any) => [q._id.toString(), q])
     )
 
+    const descriptiveAnswersToSave: any[] = []
+
     for (const [qId, selectedOpt] of Object.entries(answers)) {
         const q = questionMap.get(qId)
-        if (q && q.correctOption === selectedOpt) {
-            score++
+        if (!q) continue
+
+        const isDescriptive = q.type === 'descriptive' || (q.options && q.options.length === 0)
+
+        if (isDescriptive) {
+            if (selectedOpt !== undefined && selectedOpt !== '') {
+                descriptiveAnswersToSave.push({
+                    userId: attempt.userId,
+                    questionId: qId,
+                    examAttemptId: attemptId,
+                    setName: attempt.assignedSet,
+                    answerText: String(selectedOpt)
+                })
+            }
+        } else {
+            if (q.correctOption === Number(selectedOpt)) {
+                score++
+            }
         }
     }
 
-    const totalQuestions = questions.length
+    const totalQuestions = questions.filter((q: any) => q.type !== 'descriptive' && !(q.options && q.options.length === 0)).length
+
+    if (descriptiveAnswersToSave.length > 0) {
+        await DescriptiveAnswer.create(descriptiveAnswersToSave)
+    }
 
     await ExamAttempt.findByIdAndUpdate(attemptId, {
         score,
@@ -510,4 +580,13 @@ export async function getResult(userId: string) {
     await dbConnect()
     const attempt = await ExamAttempt.findOne({ userId }).sort({ startedAt: -1 }).lean()
     return attempt ? JSON.parse(JSON.stringify(attempt)) : null
+}
+
+export async function getDescriptiveAnswers(userId: string) {
+    await dbConnect()
+    const answers = await DescriptiveAnswer.find({ userId })
+        .populate('questionId')
+        .sort({ createdAt: -1 })
+        .lean()
+    return JSON.parse(JSON.stringify(answers))
 }
