@@ -148,7 +148,7 @@ const Courses = () => {
   `;
 
   return (
-    <section className="w-full flex justify-center py-10 relative z-10">
+    <section className="w-full flex justify-center relative z-10">
       <style dangerouslySetInnerHTML={{ __html: marqueeStyles }} />
       <div className="w-full flex flex-col items-center">
         <h2 className="text-[26px] lg:text-[30px] font-medium tracking-wide text-white mb-8">

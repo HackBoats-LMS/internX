@@ -34,14 +34,14 @@ const Footer = () => {
             {[
               { id: 'linkedin', icon: <FaLinkedin className="w-8 h-8 lg:w-7 lg:h-7 text-[#0a66c2]" />, link: 'https://linkedin.com' },
               { id: 'instagram', icon: <FaInstagram className="w-8 h-8 lg:w-7 lg:h-7 text-[#E1306C]" />, link: 'https://instagram.com' },
-              { id: 'whatsapp', icon: <FaWhatsapp className="w-8 h-8 lg:w-7 lg:h-7 text-[#25D366]" />, link: 'https://whatsapp.com' },
-              { id: 'email', icon: <FaEnvelope className="w-8 h-8 lg:w-7 lg:h-7 text-[#ea4335]" />, link: 'mailto:contact@internx.inc' }
+              { id: 'whatsapp', icon: <FaWhatsapp className="w-8 h-8 lg:w-7 lg:h-7 text-[#25D366]" />, link: 'https://wa.me/qr/QF2H7NZ3IRYRB1' },
+              { id: 'email', icon: <FaEnvelope className="w-8 h-8 lg:w-7 lg:h-7 text-[#ea4335]" />, link: 'mailto:official@hackboats.com' }
             ].map(s => (
               <a href={s.link} target="_blank" rel="noopener noreferrer" key={s.id} className="cursor-pointer hover:scale-110 hover:-translate-y-1 transition-all duration-200 drop-shadow-sm">
                 {s.icon}
               </a>
             ))}
-          </div>
+          </div>.
         </div>
 
         {/* Links Columns Desktop */}
