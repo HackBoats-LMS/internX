@@ -27,8 +27,8 @@ const Footer = () => {
             Pragathi nagar , Kphb , hyd - 500090
           </p>
           <p className="text-gray-600 font-medium leading-relaxed text-sm lg:text-[clamp(0.75rem,2vw,0.8125rem)]">
-            Phone: +91 8886099957 , +91 8886099927<br />
-            Email: official@internx.com
+            Phone: +91 8008320429<br />
+            Email: official@hackboats.com
           </p>
           <div className="flex gap-4 mt-4 lg:mt-3">
             {[
