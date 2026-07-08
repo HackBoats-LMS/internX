@@ -288,10 +288,12 @@ export async function deleteCollege(id: string) {
     return { success: true }
 }
 
-export async function addDepartment(name: string, collegeId: string) {
+export async function addDepartment(name: string, collegeId?: string) {
     if (!await isAdmin()) throw new Error("Unauthorized")
     await dbConnect()
-    await Department.create({ name, collegeId })
+    const payload: any = { name }
+    if (collegeId && collegeId.trim()) payload.collegeId = collegeId.trim()
+    await Department.create(payload)
     revalidatePath('/exam/admin')
     return { success: true }
 }

@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 
 const DepartmentSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    collegeId: { type: mongoose.Schema.Types.ObjectId, ref: 'College', required: true }
+    collegeId: { type: mongoose.Schema.Types.ObjectId, ref: 'College', required: false, default: null }
 })
 
 export default mongoose.models.Department || mongoose.model('Department', DepartmentSchema)

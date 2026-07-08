@@ -469,9 +469,9 @@ export default function AdminDashboard() {
     }
 
     const handleAddDepartment = async () => {
-        if (!newDepartment.name || !newDepartment.collegeId) return
+        if (!newDepartment.name.trim()) { toast.error('Enter a department name'); return }
         try {
-            await addDepartment(newDepartment.name, newDepartment.collegeId)
+            await addDepartment(newDepartment.name.trim(), newDepartment.collegeId || undefined)
             toast.success('Department added')
             setNewDepartment({ name: '', collegeId: '' })
             loadData()
@@ -1427,29 +1427,38 @@ export default function AdminDashboard() {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <h3 className="text-sm font-semibold text-white flex items-center"><Building2 className="w-4 h-4 mr-2" /> Departments</h3>
+                                    <h3 className="text-sm font-semibold text-white flex items-center"><Building2 className="w-4 h-4 mr-2" /> Departments / Branches</h3>
                                     <div className="space-y-2">
+                                        <div className="flex gap-2">
+                                            <Input
+                                                placeholder="Branch / Department name"
+                                                value={newDepartment.name}
+                                                onChange={e => setNewDepartment({ ...newDepartment, name: e.target.value })}
+                                                className="h-9 text-sm"
+                                                onKeyDown={e => e.key === 'Enter' && handleAddDepartment()}
+                                            />
+                                            <Button onClick={handleAddDepartment} size="sm" className="bg-slate-800 h-9 shrink-0">Add</Button>
+                                        </div>
                                         <select
-                                            className="w-full border border-white/10 rounded-md p-2 text-sm bg-[#0d0d12] focus:ring-2 focus:ring-slate-200 outline-none"
+                                            className="w-full border border-white/10 rounded-md p-2 text-sm bg-[#0d0d12] focus:ring-2 focus:ring-slate-200 outline-none text-gray-400"
                                             value={newDepartment.collegeId}
                                             onChange={e => setNewDepartment({ ...newDepartment, collegeId: e.target.value })}
                                         >
-                                            <option value="">Select College</option>
+                                            <option value="">No college (standalone branch)</option>
                                             {data.colleges?.map((c: any) => (
                                                 <option key={c._id} value={c._id}>{c.name}</option>
                                             ))}
                                         </select>
-                                        <div className="flex gap-2">
-                                            <Input placeholder="Add Department" value={newDepartment.name} onChange={e => setNewDepartment({ ...newDepartment, name: e.target.value })} className="h-9 text-sm" />
-                                            <Button onClick={handleAddDepartment} size="sm" className="bg-slate-800 h-9">Add</Button>
-                                        </div>
+                                        <p className="text-[11px] text-gray-500">College is optional — you can add a branch without linking it to a college.</p>
                                     </div>
                                     <ul className="border border-white/10 rounded-md divide-y divide-white/5 bg-[#0d0d12] max-h-[400px] overflow-y-auto">
                                         {data.departments?.map((d: any) => (
                                             <li key={d._id} className="px-3 py-2.5 text-sm flex justify-between items-center group hover:bg-white/5">
                                                 <div>
                                                     <span className="text-gray-200 block">{d.name}</span>
-                                                    <span className="text-[10px] text-gray-400 uppercase tracking-wide">{d.collegeId?.name}</span>
+                                                    <span className="text-[10px] text-gray-400 uppercase tracking-wide">
+                                                        {d.collegeId?.name || <span className="text-gray-600 normal-case not-italic">No college</span>}
+                                                    </span>
                                                 </div>
                                                 <Trash2 className="w-3.5 h-3.5 text-slate-300 group-hover:text-red-500 cursor-pointer" onClick={() => handleDeleteDepartment(d._id)} />
                                             </li>
