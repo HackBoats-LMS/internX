@@ -2,7 +2,7 @@
 import React from 'react'
 
 const MeraEvents = () => {
-  const Link:string = "https://www.meraevents.com/ticketWidget?eventId=270783&ucode=organizer&wcode=9063CD-9063CD-333333-9063CD-&theme=1&samepage=1"
+  const Link:string = "https://www.meraevents.com/ticketWidget?eventId=300134&ucode=organizer&wcode=9063CD-9063CD-333333-9063CD-&theme=1&samepage=1"
   return (
     <div>
         <button
