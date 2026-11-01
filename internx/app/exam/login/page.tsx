@@ -142,12 +142,6 @@ export default function ExamStudentLoginPage() {
           >
             Platform Home
           </Link>
-          <Link
-            href="/exam/admin-login"
-            className="text-xs text-[#ff4d4d] hover:underline font-medium"
-          >
-            Invigilator / Faculty Admin
-          </Link>
         </div>
       </header>
 
@@ -166,7 +160,7 @@ export default function ExamStudentLoginPage() {
                 Student Examination Login
               </h1>
               <p className="text-xs sm:text-sm text-white/60 leading-relaxed max-w-md mx-auto">
-                Only students added or authorized by campus administration are verified to take this assessment.
+                Only students authorized for this assessment are verified to enter.
               </p>
             </div>
 
@@ -177,7 +171,7 @@ export default function ExamStudentLoginPage() {
                 <span>Examination Protocol & Rules:</span>
               </div>
               <ul className="space-y-1 text-white/60 pl-6 list-disc text-[11px] leading-relaxed">
-                <li><strong className="text-white/80">Batch Verification:</strong> You must be registered by the admin to participate.</li>
+                <li><strong className="text-white/80">Batch Verification:</strong> You must be pre-registered to participate.</li>
                 <li><strong className="text-white/80">Single Attempt:</strong> Once submitted or timed out, re-entry is prohibited.</li>
                 <li><strong className="text-white/80">Proctoring:</strong> Fullscreen mode is enforced; leaving the window logs a violation.</li>
               </ul>
@@ -295,14 +289,6 @@ export default function ExamStudentLoginPage() {
               </svg>
               <span>Continue with Google Account</span>
             </button>
-
-            {/* Footer */}
-            <div className="mt-6 pt-5 border-t border-white/[0.08] text-center text-xs text-white/50">
-              Are you an exam invigilator?{' '}
-              <Link href="/exam/admin-login" className="text-[#ff4d4d] hover:underline font-medium">
-                Faculty Admin Login
-              </Link>
-            </div>
           </div>
         </div>
       </main>
