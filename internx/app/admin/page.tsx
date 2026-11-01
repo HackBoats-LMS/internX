@@ -178,6 +178,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     loadAllData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
   const handleLogout = async () => {

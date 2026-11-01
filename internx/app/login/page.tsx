@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -8,7 +8,7 @@ import { Loader2, ArrowLeft, Sparkles } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 import { toast, Toaster } from 'sonner';
 
-export default function LoginPage() {
+function LoginForm() {
   const searchParams = useSearchParams();
   const redirectPath = searchParams.get('redirect') || '/dashboard';
 
@@ -142,5 +142,17 @@ export default function LoginPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white/40">
+        <Loader2 className="w-6 h-6 animate-spin text-[#ff1a1a]" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
