@@ -27,20 +27,16 @@
 
 html {
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
 }
 
 body {
-  overflow-x: hidden;
-  overflow-y: visible !important;
-  max-width: 100vw;
-  min-height: 100vh;
   margin: 0;
-}
-
-body {
+  padding: 0;
+  min-height: 100vh;
+  overflow: visible !important;
   background: var(--background);
   color: var(--foreground);
 }
@@ -131,6 +127,13 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--exam-muted-foreground) / 0.5);
+}
+
+/* Strictly hide any secondary scrollbar on body */
+body::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /* Exam Footer Utilities */
