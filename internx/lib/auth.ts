@@ -257,7 +257,8 @@ export const authOptions: NextAuthOptions = {
         error: '/login'
     },
     session: {
-        strategy: 'jwt'
+        strategy: 'jwt',
+        maxAge: 24 * 60 * 60, // 24 hours session security limit
     },
     // Fail closed in production: never fall back to a guessable secret.
     secret: process.env.NEXTAUTH_SECRET ||

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { LogIn, LayoutDashboard, LogOut } from 'lucide-react';
 
 interface UserSession {
@@ -44,6 +45,7 @@ export default function Header() {
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
+      await signOut({ redirect: false });
       setUser(null);
       window.location.href = '/';
     } catch {
@@ -123,9 +125,9 @@ export default function Header() {
           /* User is Logged Out - Clean Login Button (no signup icon/button) */
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium py-2 px-4 rounded-full bg-white/[0.04] hover:bg-white/[0.09] text-white/90 hover:text-white border border-white/15 hover:border-white/30 backdrop-blur-md transition-all cursor-pointer shadow-sm hover:scale-105"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold py-2 px-5 rounded-full bg-[#ff1a1a] hover:bg-[#ff3333] active:bg-[#e60000] text-white shadow-lg shadow-[#ff1a1a]/30 hover:shadow-[#ff1a1a]/50 transition-all cursor-pointer hover:scale-105"
           >
-            <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#ff4d4d]" />
+            <LogIn className="w-4 h-4 text-white" />
             <span>Login</span>
           </Link>
         )}

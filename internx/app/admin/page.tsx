@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { FaPython, FaRobot, FaBrain } from 'react-icons/fa';
 import { toast, Toaster } from 'sonner';
+import { signOut } from 'next-auth/react';
 
 interface Course {
   id: string;
@@ -182,10 +183,14 @@ export default function AdminPage() {
   }, [router]);
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    toast.success('Admin session ended');
-    router.push('/login');
-    router.refresh();
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      await signOut({ redirect: false });
+      toast.success('Admin session ended');
+      window.location.href = '/login';
+    } catch {
+      window.location.href = '/login';
+    }
   };
 
   // Goal options handlers

@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { FaPython, FaRobot, FaBrain } from 'react-icons/fa';
 import { toast, Toaster } from 'sonner';
+import { signOut } from 'next-auth/react';
 
 interface Course {
   id: string;
@@ -190,11 +191,11 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
+      await signOut({ redirect: false });
       toast.success('Logged out successfully');
-      router.push('/login');
-      router.refresh();
+      window.location.href = '/login';
     } catch {
-      router.push('/login');
+      window.location.href = '/login';
     }
   };
 
@@ -366,7 +367,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#050505] text-white flex flex-col font-sans overflow-x-hidden selection:bg-[#ff1a1a]/30">
+    <div className="relative min-h-screen bg-[#050505] text-white flex flex-col font-sans overflow-x-clip selection:bg-[#ff1a1a]/30">
       <Toaster richColors position="top-right" theme="dark" />
 
       {/* Background glow effects */}
