@@ -43,7 +43,7 @@ function LoginForm() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#050505] text-white flex flex-col font-sans overflow-x-hidden selection:bg-[#ff1a1a]/30">
+    <div className="relative min-h-screen bg-[#050505] text-white flex flex-col font-sans overflow-x-clip selection:bg-[#ff1a1a]/30">
       <Toaster richColors position="top-right" theme="dark" />
 
       {/* Glowing background ambiance */}

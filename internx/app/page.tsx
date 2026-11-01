@@ -8,7 +8,7 @@ import Footer from '../components/Footer';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#050505] text-white flex flex-col font-sans overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#050505] text-white flex flex-col font-sans overflow-x-clip relative">
       <Hero />
       <EngineeringLoop />
       <CommandCenter />
