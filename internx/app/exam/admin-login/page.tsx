@@ -62,8 +62,24 @@ export default function AdminLoginPage() {
                             <Lock className="w-8 h-8" />
                         </div>
                     </div>
-                    <h1 className="text-2xl font-bold text-white">Admin Portal</h1>
-                    <p className="text-gray-400 text-sm mt-2">Enter your credentials to manage the platform</p>
+                    <h1 className="text-2xl font-bold text-white">Exam Admin Portal</h1>
+                    <p className="text-gray-400 text-sm mt-2">Enter credentials to manage exam questions, batches, and master data</p>
+                </div>
+
+                <div className="px-6 pb-2">
+                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400 flex items-center justify-between">
+                        <span>Demo Admin: admin@hackboats.com</span>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setEmail('admin@hackboats.com')
+                                setPassword('admin123')
+                            }}
+                            className="text-white underline font-medium hover:text-red-300 cursor-pointer"
+                        >
+                            Auto Fill
+                        </button>
+                    </div>
                 </div>
 
                 <div className="px-6 pb-8" suppressHydrationWarning>
