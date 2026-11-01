@@ -1,11 +1,16 @@
-
+"use client"
 import React from 'react';
 import Header from './Header';
 import OrbitSystem from './OrbitSystem';
 import Banner from './Banner';
 import MeraEvents from './MeraEvents';
+import { useRouter } from 'next/navigation';
 
 const Hero = () => {
+  const router = useRouter();
+  const handleRegisterClick = () => {
+    router.push('/auth/register');
+  };
   return (
     <div className="relative w-full lg:min-h-screen flex flex-col">
       <div className="relative z-20 w-full">
@@ -39,7 +44,14 @@ const Hero = () => {
             projects, collaboration, mentorship, and execution-driven learning.
           </p>
           <div className="flex flex-row gap-4 mt-3 lg:mt-3">
-            <MeraEvents />
+            {/* <MeraEvents /> */}
+            <button
+            onClick={handleRegisterClick}
+              className="bg-[#ff1a1a] hover:bg-[#ff3333] transition-colors text-white rounded-full font-medium hover:cursor-pointer"
+              style={{ fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)', padding: 'clamp(0.55rem, 1.5vw, 0.875rem) clamp(1.5rem, 4vw, 2.5rem)' }}
+            >
+              Register Now
+            </button>
           </div>
         </div>
 

@@ -29,7 +29,8 @@ import {
     updateSectionName,
     createSet,
     deleteSet,
-    changeAdminPassword
+    changeAdminPassword,
+    addExamCandidate
 } from '../actions'
 import { signOut } from 'next-auth/react'
 import { Footer } from '@/components/exam/footer'
@@ -75,6 +76,19 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true)
     const [data, setData] = useState<any>({ users: [], questions: [], sets: [], config: {}, colleges: [], departments: [] })
     const [searchTerm, setSearchTerm] = useState('')
+
+    // ── Candidate Management State ───────────────────────────────────────────
+    const [showAddCandidateModal, setShowAddCandidateModal] = useState(false)
+    const [isSavingCandidate, setIsSavingCandidate] = useState(false)
+    const [candidateForm, setCandidateForm] = useState({
+        fullName: '',
+        email: '',
+        rollNo: '',
+        mobile: '',
+        college: '',
+        department: '',
+        password: 'password123'
+    })
 
     // ── Question Management State (clean, explicit) ──────────────────────────
     const [qView, setQView] = useState<QView>('sets')          // which screen
@@ -505,6 +519,34 @@ export default function AdminDashboard() {
         }
     }
 
+    const handleAddCandidate = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!candidateForm.fullName.trim() || !candidateForm.email.trim()) {
+            toast.error('Full name and email are required')
+            return
+        }
+        setIsSavingCandidate(true)
+        try {
+            await addExamCandidate(candidateForm)
+            toast.success('Candidate added and authorized for examination!')
+            setShowAddCandidateModal(false)
+            setCandidateForm({
+                fullName: '',
+                email: '',
+                rollNo: '',
+                mobile: '',
+                college: '',
+                department: '',
+                password: 'password123'
+            })
+            await silentRefresh()
+        } catch (error: any) {
+            toast.error(error.message || 'Failed to add candidate')
+        } finally {
+            setIsSavingCandidate(false)
+        }
+    }
+
     // ── Derived Data ─────────────────────────────────────────────────────────
     const allSets = getSetsFromQuestions(data.questions || [])
     const allSections = currentSet ? getSectionsForSet(data.questions || [], currentSet) : []
@@ -819,6 +861,16 @@ export default function AdminDashboard() {
                                             )
                                         })}
                                     </select>
+
+                                    {/* Add Exam Candidate Button */}
+                                    <Button
+                                        size="sm"
+                                        onClick={() => setShowAddCandidateModal(true)}
+                                        className="h-9 bg-[#ff1a1a] hover:bg-[#d60000] text-white text-xs font-semibold px-4 flex items-center gap-1.5 shadow-md shadow-[#ff1a1a]/20 shrink-0"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        <span>Add Candidate</span>
+                                    </Button>
                                 </div>
 
                                 {/* Top N Export Panel (only when college filtered) */}
@@ -947,6 +999,163 @@ export default function AdminDashboard() {
                                         <div className="p-12 text-center text-gray-400 text-sm">No students found.</div>
                                     )}
                                 </div>
+
+                                {/* ── Add Candidate Modal ── */}
+                                <AnimatePresence>
+                                    {showAddCandidateModal && (
+                                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+                                            <motion.div
+                                                initial={{ scale: 0.95, opacity: 0 }}
+                                                animate={{ scale: 1, opacity: 1 }}
+                                                exit={{ scale: 0.95, opacity: 0 }}
+                                                className="bg-[#0e0e12] border border-white/10 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative"
+                                            >
+                                                <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10">
+                                                    <div>
+                                                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                                            <Plus className="w-5 h-5 text-[#ff1a1a]" />
+                                                            Authorize Exam Candidate
+                                                        </h3>
+                                                        <p className="text-xs text-gray-400 mt-0.5">
+                                                            Add student to the authorized batch to allow login at /exam
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => setShowAddCandidateModal(false)}
+                                                        className="text-gray-400 hover:text-white p-1 rounded-lg"
+                                                    >
+                                                        <X className="w-5 h-5" />
+                                                    </button>
+                                                </div>
+
+                                                <form onSubmit={handleAddCandidate} className="space-y-3.5">
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-300 mb-1">
+                                                            Full Name <span className="text-red-400">*</span>
+                                                        </label>
+                                                        <Input
+                                                            type="text"
+                                                            required
+                                                            placeholder="e.g. John Doe"
+                                                            value={candidateForm.fullName}
+                                                            onChange={e => setCandidateForm({ ...candidateForm, fullName: e.target.value })}
+                                                            className="h-9 bg-[#15151a] text-xs"
+                                                        />
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className="block text-xs font-medium text-gray-300 mb-1">
+                                                                Email Address <span className="text-red-400">*</span>
+                                                            </label>
+                                                            <Input
+                                                                type="email"
+                                                                required
+                                                                placeholder="student@example.com"
+                                                                value={candidateForm.email}
+                                                                onChange={e => setCandidateForm({ ...candidateForm, email: e.target.value })}
+                                                                className="h-9 bg-[#15151a] text-xs"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-medium text-gray-300 mb-1">
+                                                                Roll Number / Student ID
+                                                            </label>
+                                                            <Input
+                                                                type="text"
+                                                                placeholder="e.g. 26CS102"
+                                                                value={candidateForm.rollNo}
+                                                                onChange={e => setCandidateForm({ ...candidateForm, rollNo: e.target.value })}
+                                                                className="h-9 bg-[#15151a] text-xs"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className="block text-xs font-medium text-gray-300 mb-1">
+                                                                Mobile / WhatsApp
+                                                            </label>
+                                                            <Input
+                                                                type="text"
+                                                                placeholder="e.g. 9876543210"
+                                                                value={candidateForm.mobile}
+                                                                onChange={e => setCandidateForm({ ...candidateForm, mobile: e.target.value })}
+                                                                className="h-9 bg-[#15151a] text-xs"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-medium text-gray-300 mb-1">
+                                                                Access Password
+                                                            </label>
+                                                            <Input
+                                                                type="text"
+                                                                placeholder="password123"
+                                                                value={candidateForm.password}
+                                                                onChange={e => setCandidateForm({ ...candidateForm, password: e.target.value })}
+                                                                className="h-9 bg-[#15151a] text-xs"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className="block text-xs font-medium text-gray-300 mb-1">
+                                                                College / Institution
+                                                            </label>
+                                                            <Input
+                                                                type="text"
+                                                                placeholder="e.g. Institute of Tech"
+                                                                value={candidateForm.college}
+                                                                onChange={e => setCandidateForm({ ...candidateForm, college: e.target.value })}
+                                                                className="h-9 bg-[#15151a] text-xs"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-medium text-gray-300 mb-1">
+                                                                Department
+                                                            </label>
+                                                            <Input
+                                                                type="text"
+                                                                placeholder="e.g. Computer Science"
+                                                                value={candidateForm.department}
+                                                                onChange={e => setCandidateForm({ ...candidateForm, department: e.target.value })}
+                                                                className="h-9 bg-[#15151a] text-xs"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="pt-3 flex items-center justify-end gap-2 border-t border-white/10">
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => setShowAddCandidateModal(false)}
+                                                            className="text-gray-400 hover:text-white"
+                                                        >
+                                                            Cancel
+                                                        </Button>
+                                                        <Button
+                                                            type="submit"
+                                                            disabled={isSavingCandidate}
+                                                            size="sm"
+                                                            className="bg-[#ff1a1a] hover:bg-[#d60000] text-white font-semibold"
+                                                        >
+                                                            {isSavingCandidate ? (
+                                                                <>
+                                                                    <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                                                                    Authorizing...
+                                                                </>
+                                                            ) : (
+                                                                'Authorize & Save Candidate'
+                                                            )}
+                                                        </Button>
+                                                    </div>
+                                                </form>
+                                            </motion.div>
+                                        </div>
+                                    )}
+                                </AnimatePresence>
                             </div>
                         )}
 

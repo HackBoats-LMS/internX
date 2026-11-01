@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id             String         @id @default(uuid())
+  email          String         @unique
+  password       String
+  name           String
+  role           String         @default("student") // "student" | "admin"
+  phone          String?
+  college        String?
+  department     String?
+  enrollments    Enrollment[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@map("users")
+}
+
+model StudentRegistration {
+  id             String   @id @default(uuid())
+  name           String
+  email          String   @unique
+  whatsappNumber String
+  collegeName    String
+  department     String
+  goals          String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("student_registrations")
+}
+
+model Course {
+  id                String       @id @default(uuid())
+  slug              String       @unique
+  title             String
+  description       String
+  icon              String       @default("ai") // "ai" | "python" | "robotics" | other
+  cost              Float        @default(2999)
+  renewalCost       Float        @default(999)
+  renewalPeriod     String       @default("30 Days") // e.g. "30 Days", "3 Months", "6 Months"
+  renewalPeriodDays Int          @default(30)
+  features          String[]     @default([])
+  isLive            Boolean      @default(true)
+  enrollments       Enrollment[]
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@map("courses")
+}
+
+model Enrollment {
+  id           String    @id @default(uuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId     String
+  course       Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  status       String    @default("active") // "active" | "expired"
+  startDate    DateTime  @default(now())
+  expiresAt    DateTime
+  costPaid     Float
+  renewalCount Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("enrollments")
+}
+
+model PaymentTransaction {
+  id                String   @id @default(uuid())
+  userId            String
+  userEmail         String
+  courseId          String
+  courseTitle       String
+  amount            Float
+  currency          String   @default("INR")
+  razorpayOrderId   String
+  razorpayPaymentId String   @unique
+  razorpaySignature String?
+  receiptNumber     String   @unique
+  status            String   @default("captured") // "created" | "captured" | "failed" | "refunded"
+  isRenewal         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  @@map("payment_transactions")
+}

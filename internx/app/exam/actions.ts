@@ -13,6 +13,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { revalidatePath } from 'next/cache'
 import { getFromRedisOrDb, invalidateRedisTag } from '@/lib/redis'
+import bcrypt from 'bcryptjs'
 
 // --- Cached Helpers ---
 const getCachedValidSets = async () => getFromRedisOrDb(
@@ -49,6 +50,25 @@ const getCachedQuestionsWithAnswersForSet = async (setName: string) => getFromRe
 const getSessionUser = async () => {
     const session = await getServerSession(authOptions)
     return session?.user as any
+}
+
+/**
+ * Require an authenticated session and (optionally) that the caller owns
+ * `targetUserId`. Throws Unauthorized otherwise. Used to close the IDOR holes
+ * where any caller could pass an arbitrary userId/attemptId.
+ */
+const requireUser = async (targetUserId?: string) => {
+    const user = await getSessionUser()
+    if (!user) throw new Error("Unauthorized")
+    if (targetUserId && user.id !== targetUserId) throw new Error("Unauthorized")
+    return user
+}
+
+/** Strip sensitive fields (password hash) before returning a user document. */
+const sanitizeUser = (u: any) => {
+    if (!u) return u
+    const { password, ...rest } = typeof u.toJSON === 'function' ? u.toJSON() : { ...u }
+    return rest
 }
 
 const isAdmin = async () => {
@@ -355,7 +375,8 @@ export async function changeAdminPassword(newPassword: string) {
 
     if (!adminUser || adminUser.role !== 'admin') throw new Error("Admin not found")
 
-    adminUser.password = newPassword
+    // Hash before storing — never persist a plaintext password.
+    adminUser.password = await bcrypt.hash(newPassword, 10)
     await adminUser.save()
 
     return { success: true }
@@ -364,31 +385,57 @@ export async function changeAdminPassword(newPassword: string) {
 // --- User Actions ---
 
 export async function getProfile(id: string) {
+    // Require an authenticated session. A caller may only fetch their own
+    // profile (admins may fetch any). Prevents unauthenticated PII + password
+    // hash disclosure via arbitrary id/email/rollNo/mobile.
+    const sessionUser = await getSessionUser()
+    if (!sessionUser) throw new Error("Unauthorized")
+    if (id !== sessionUser.id && (sessionUser.role as string) !== 'admin') {
+        throw new Error("Unauthorized")
+    }
+
     if (id === 'admin-id') {
         return {
             _id: 'admin-id',
             fullName: 'Administrator',
-            email: 'admin@hackboats.com',
+            email: process.env.ADMIN_EMAIL || 'admin@internx.com',
             role: 'admin'
         }
     }
 
     await dbConnect()
-    if (!id.match(/^[0-9a-fA-F]{24}$/)) return null
-
-    const user = await User.findById(id)
-    return user ? JSON.parse(JSON.stringify(user)) : null
+    let user = null
+    if (id && id.match(/^[0-9a-fA-F]{24}$/)) {
+        user = await User.findById(id)
+    }
+    if (!user && id) {
+        user = await User.findOne({
+            $or: [
+                { email: id.toLowerCase() },
+                { rollNo: id },
+                { mobile: id }
+            ]
+        })
+    }
+    // Never return the password hash to the client.
+    return user ? JSON.parse(JSON.stringify(sanitizeUser(user))) : null
 }
 
 export async function upsertProfile(data: any) {
     const user = await getSessionUser()
-    if (!user || user.id !== data.id) throw new Error("Unauthorized")
+    if (!user) throw new Error("Unauthorized")
 
     await dbConnect()
 
+    // SECURITY: role is always taken from the authenticated session, never from
+    // client input. This prevents a student from escalating to admin by sending
+    // role:'admin'. The record updated is always the caller's own (by session id
+    // or email) — a client-supplied data.id is ignored to avoid IDOR.
+    const sessionRole = (user.role as string) === 'admin' ? 'admin' : 'student'
+
     const update = {
-        email: data.email,
-        fullName: data.full_name,
+        email: (user.email || '').toLowerCase().trim(),
+        fullName: data.full_name || user.name || 'Exam Candidate',
         college: data.college,
         department: data.department,
         section: data.section,
@@ -397,11 +444,57 @@ export async function upsertProfile(data: any) {
         semester: data.semester,
         mobile: data.mobile,
         whatsapp: data.whatsapp,
-        role: data.role
+        role: sessionRole
     }
 
-    await User.findByIdAndUpdate(data.id, update, { new: true })
+    if (user.id && user.id.match(/^[0-9a-fA-F]{24}$/)) {
+        await User.findByIdAndUpdate(user.id, update, { new: true, upsert: true })
+    } else {
+        await User.findOneAndUpdate(
+            { email: update.email },
+            update,
+            { new: true, upsert: true }
+        )
+    }
     return { success: true }
+}
+
+export async function addExamCandidate(candidate: {
+    fullName: string
+    email: string
+    rollNo?: string
+    mobile?: string
+    college?: string
+    department?: string
+    section?: string
+    password?: string
+}) {
+    if (!await isAdmin()) throw new Error("Unauthorized")
+    await dbConnect()
+
+    const normEmail = candidate.email.toLowerCase().trim()
+    const rawPassword = candidate.password?.trim() || 'password123'
+    const hashedPassword = await bcrypt.hash(rawPassword, 10)
+
+    const userDoc = await User.findOneAndUpdate(
+        { email: normEmail },
+        {
+            email: normEmail,
+            fullName: candidate.fullName.trim(),
+            rollNo: candidate.rollNo?.trim() || '',
+            mobile: candidate.mobile?.trim() || '',
+            whatsapp: candidate.mobile?.trim() || '',
+            college: candidate.college?.trim() || 'Engineering Campus',
+            department: candidate.department?.trim() || 'Computer Science',
+            section: candidate.section?.trim() || 'A',
+            password: hashedPassword,
+            role: 'student'
+        },
+        { new: true, upsert: true }
+    )
+
+    revalidatePath('/exam/admin')
+    return { success: true, user: JSON.parse(JSON.stringify(userDoc)) }
 }
 
 export async function getColleges() {
@@ -425,6 +518,7 @@ export async function getDepartments() {
 // --- Exam Actions ---
 
 export async function checkExamStatus(userId: string) {
+    await requireUser(userId)
     await dbConnect()
     const attempt = await ExamAttempt.findOne({ userId }).sort({ startedAt: -1 }).lean()
     if (attempt && (attempt.status === 'completed' || attempt.status === 'terminated')) {
@@ -434,6 +528,7 @@ export async function checkExamStatus(userId: string) {
 }
 
 export async function startExam(userId: string) {
+    await requireUser(userId)
     await dbConnect()
 
     const existing = await ExamAttempt.findOne({ userId }).sort({ startedAt: -1 })
@@ -480,9 +575,13 @@ export const getExamConfig = async () => getFromRedisOrDb(
 )
 
 export async function fetchQuestions(attemptId: string) {
+    const user = await getSessionUser()
+    if (!user) throw new Error("Unauthorized")
     await dbConnect()
     const attempt = await ExamAttempt.findById(attemptId).lean()
     if (!attempt) return []
+    // Ownership check: only the owner of the attempt may fetch its questions.
+    if (attempt.userId?.toString() !== user.id) throw new Error("Unauthorized")
 
     const questions = await getCachedQuestionsForSet(attempt.assignedSet)
 
@@ -527,9 +626,40 @@ export async function fetchQuestions(attemptId: string) {
 }
 
 export async function submitExam(attemptId: string, answers: Record<string, number | string>, status: string) {
+    const user = await getSessionUser()
+    if (!user) throw new Error("Unauthorized")
     await dbConnect()
     const attempt = await ExamAttempt.findById(attemptId)
     if (!attempt) throw new Error("Attempt not found")
+    // Ownership check: only the owner may submit. Prevents overwriting others.
+    if (attempt.userId?.toString() !== user.id) throw new Error("Unauthorized")
+    // Idempotency: an already-finalized attempt cannot be re-submitted/overwritten.
+    if (attempt.status === 'completed' || attempt.status === 'terminated') {
+        throw new Error("This attempt has already been submitted.")
+    }
+
+    // Server-side time enforcement (H7): reject submissions after the configured
+    // window (small grace period for latency). The client timer is only UX.
+    try {
+        const config = await getExamConfig()
+        const timeLimitMin = Number(config?.timeLimit) || 30
+        const startedAt = new Date(attempt.startedAt).getTime()
+        const elapsedMs = Date.now() - startedAt
+        const graceMs = 2 * 60 * 1000 // 2-minute grace for network latency
+        if (elapsedMs > timeLimitMin * 60 * 1000 + graceMs) {
+            // Mark as terminated rather than scoring a late submission.
+            await ExamAttempt.findByIdAndUpdate(attemptId, {
+                status: 'terminated',
+                totalQuestions: (await getCachedQuestionsWithAnswersForSet(attempt.assignedSet))
+                    .filter((q: any) => q.type !== 'descriptive' && !(q.options && q.options.length === 0)).length,
+                completedAt: new Date()
+            })
+            throw new Error("Time limit exceeded. Your exam was auto-submitted.")
+        }
+    } catch (cfgErr: any) {
+        // Re-throw time-limit errors; ignore config lookup issues otherwise.
+        if (cfgErr?.message?.includes('Time limit exceeded')) throw cfgErr
+    }
 
     let score = 0
     const questions = await getCachedQuestionsWithAnswersForSet(attempt.assignedSet)
@@ -579,12 +709,14 @@ export async function submitExam(attemptId: string, answers: Record<string, numb
 }
 
 export async function getResult(userId: string) {
+    await requireUser(userId)
     await dbConnect()
     const attempt = await ExamAttempt.findOne({ userId }).sort({ startedAt: -1 }).lean()
     return attempt ? JSON.parse(JSON.stringify(attempt)) : null
 }
 
 export async function getDescriptiveAnswers(userId: string) {
+    await requireUser(userId)
     await dbConnect()
     const answers = await DescriptiveAnswer.find({ userId })
         .populate('questionId')
